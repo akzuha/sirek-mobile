@@ -74,7 +74,7 @@ Container(
       const Text(
         "Kabinet Bahtera Karsa",
         style: TextStyle(
-          fontSize: 24,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Color(0xFF072554),
         ),
@@ -84,7 +84,7 @@ Container(
         "BEM Unsoed 2024 mengusung nama kabinet “Bahtera Karsa” dengan arti kapal/wadah yang besar di dalamnya terdapat orang-orang yang memiliki karsa/tekad yang sama. Bersama nama dan logo ini terdapat doa serta harapan yang mengiringi setiap perjalanan BEM Unsoed di tahun 2024. Dengan ini, perjalanan BEM Unsoed 2024 kita awali bersama. Sudah saatnya kita untuk saling berkolaborasi bersama untuk terus menciptakan ragam karya untuk Unsoed dan Negeri kita tercinta. Ciptakan bahtera, Satukan karsa, Melangkah bersama!",
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 10,
           color: Colors.black87,
         ),
       ),
@@ -198,12 +198,12 @@ Container(
             title,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 14,
             ),
           ),
           subtitle: Text(
             description,
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 12),
           ),
         ),
       ),
