@@ -6,7 +6,7 @@ import 'package:sirek/mhs/pengumuman_page.dart';
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex; // Indeks halaman aktif
 
-  const CustomBottomNavBar({Key? key, required this.currentIndex}) : super(key: key);
+  const CustomBottomNavBar({super.key, required this.currentIndex});
 
   void _onTap(BuildContext context, int index) {
     switch (index) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/mhsbottom_nav.dart';
 
 class PengumumanPage extends StatelessWidget {
-  const PengumumanPage({Key? key}) : super(key: key);
+  const PengumumanPage({super.key});
 
   @override
   Widget build(BuildContext context) {
