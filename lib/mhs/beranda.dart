@@ -10,65 +10,90 @@ class BerandaPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFF072554),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              "images/logo_bem_unsoed.png", // Logo di sebelah kiri
-              height: 40,
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              "BahteraKarsa",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.white,
-              ),
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white), // Tanda panah warna putih
+          onPressed: () {
+            Navigator.pop(context); // Aksi kembali ke halaman sebelumnya
+          },
         ),
-        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(
+              "images/iconsirek.png", // Ikon di sebelah kanan
+              height: 30, // Ukuran ikon diperkecil
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Header Logo dan Deskripsi
+            // Container biru dengan judul BEM UNSOED 2024
             Container(
               color: const Color(0xFF072554),
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Image.asset(
-                    "images/logo_bem_unsoed.png",
-                    height: 80,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: const Center(
+                child: Text(
+                  "BEM UNSOED 2024",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Kabinet Bahtera Karsa",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "BEM Unsoed 2024 mengusung nama kabinet “Bahtera Karsa” dengan arti kapal/wadah yang besar di dalamnya terdapat orang-orang yang memiliki karsa/tekad yang sama. Bersama nama dan logo ini terdapat doa serta harapan yang mengiringi setiap perjalanan BEM Unsoed di tahun 2024. Dengan ini, perjalanan BEM Unsoed 2024 kita awali bersama. Sudut pandang ini untuk terus menciptakan ragam karya untuk Unsoed dan Negeri kita tercinta. Ciptakan bahtera, Satukan karsa, Melangkah bersama!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(height: 20),
+            // Container putih untuk deskripsi dan logo
+            // Container putih untuk deskripsi dan logo
+Container(
+  width: double.infinity,
+  margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10), // Margin kanan-kiri 30
+  padding: const EdgeInsets.all(20),
+  decoration: BoxDecoration(
+    color: Colors.white, // Warna putih dipindahkan ke dalam decoration
+    borderRadius: BorderRadius.circular(10), // Radius 10
+    boxShadow: [
+      BoxShadow(
+        color: Colors.grey.withOpacity(0.2),
+        spreadRadius: 2,
+        blurRadius: 5,
+        offset: const Offset(0, 3), // Shadow di bawah
+      ),
+    ],
+  ),
+  child: Column(
+    children: [
+      Image.asset(
+        "images/logo_bem_unsoed.png", // Logo utama
+        height: 80,
+      ),
+      const SizedBox(height: 10),
+      const Text(
+        "Kabinet Bahtera Karsa",
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF072554),
+        ),
+      ),
+      const SizedBox(height: 10),
+      const Text(
+        "BEM Unsoed 2024 mengusung nama kabinet “Bahtera Karsa” dengan arti kapal/wadah yang besar di dalamnya terdapat orang-orang yang memiliki karsa/tekad yang sama. Bersama nama dan logo ini terdapat doa serta harapan yang mengiringi setiap perjalanan BEM Unsoed di tahun 2024. Dengan ini, perjalanan BEM Unsoed 2024 kita awali bersama. Sudah saatnya kita untuk saling berkolaborasi bersama untuk terus menciptakan ragam karya untuk Unsoed dan Negeri kita tercinta. Ciptakan bahtera, Satukan karsa, Melangkah bersama!",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.black87,
+        ),
+      ),
+    ],
+  ),
+),
 
-            // Filosofi Logo
+            const SizedBox(height: 20),
+            // Filosofi Logo Section
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -116,7 +141,6 @@ class BerandaPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
             // Booklet Section
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
