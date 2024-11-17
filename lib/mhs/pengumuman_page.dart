@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart'; // Untuk membuka link file PDF
+
 import '../widgets/mhsbottom_nav.dart';
 
 class PengumumanPage extends StatelessWidget {
@@ -24,7 +26,7 @@ class PengumumanPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Container biru dengan judul BEM UNSOED 2024
+            // Container biru dengan judul
             Container(
               color: const Color(0xFF072554),
               width: double.infinity,
@@ -54,6 +56,7 @@ class PengumumanPage extends StatelessWidget {
                   title: "Soedirman Student Summit (S3)",
                   description:
                       "Silahkan unduh file pengumuman melalui tombol di bawah ini.",
+                  pdfUrl: "https://example.com/file_pengumuman_$index.pdf", // URL PDF untuk unduhan
                 );
               },
             ),
@@ -69,6 +72,7 @@ class PengumumanPage extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String description,
+    required String pdfUrl,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -122,9 +126,8 @@ class PengumumanPage extends StatelessWidget {
                 // Tombol Unduh Pengumuman
                 ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Unduh Pengumuman ditekan")),
-                    );
+                    // Tampilkan pop-up unduh
+                    _showDownloadDialog(context, pdfUrl);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6A220), // Warna tombol
@@ -147,6 +150,86 @@ class PengumumanPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // Fungsi untuk menampilkan dialog unduhan
+  void _showDownloadDialog(BuildContext context, String pdfUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Dialog dapat ditutup dengan klik di luar
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Download File Info",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF072554),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                color: Colors.black54,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.picture_as_pdf,
+                size: 50,
+                color: Color(0xFF072554),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "PDF - 754.73 KB",
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF072554),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () async {
+                  // Buka link unduhan
+                  if (await canLaunch(pdfUrl)) {
+                    await launch(pdfUrl);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Gagal membuka link unduhan."),
+                      ),
+                    );
+                  }
+                  Navigator.of(context).pop(); // Tutup dialog setelah unduh
+                },
+                child: const Text(
+                  "Download File",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
