@@ -29,4 +29,5 @@ flutter:
   assets:
    - images/
    - images/iconsirek.png
-   - images/landingsirek.png  
+   - images/landingsirek.png 
+   - images/logo.png 

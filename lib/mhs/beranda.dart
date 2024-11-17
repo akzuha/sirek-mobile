@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/mhsbottom_nav.dart';
 
 class BerandaPage extends StatelessWidget {
-  const BerandaPage({Key? key}) : super(key: key);
+  const BerandaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
