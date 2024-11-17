@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:sirek/mhs/beranda.dart'; // Tambahkan import untuk halaman beranda
 import 'package:sirek/ui/login_page.dart';
 
 class Landing extends StatelessWidget {
   const Landing({super.key, required String title});
 
   void _showDialog(BuildContext context, String pesan, Widget alamat) {
-  showDialog(
-    context: context,
-    builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        title: Text(pesan),
-        actions: [
-          TextButton(
-            child: const Text('Ok'),
-            onPressed: () {
-              // Close the dialog
-              Navigator.pop(dialogContext);
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(pesan),
+          actions: [
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                // Close the dialog
+                Navigator.pop(dialogContext);
 
-              // Navigate to the next page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => alamat,
-                ),
-              );
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
+                // Navigate to the next page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => alamat,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,15 @@ class Landing extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      // Navigasi ke halaman beranda
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BerandaPage(),
+                        ),
+                      );
+                    },
                     child: const Center(
                       child: Text(
                         'Mulai',
