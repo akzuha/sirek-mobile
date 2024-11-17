@@ -28,6 +28,9 @@ class _LoginpageState extends State<Loginpage> {
       controller: namacontroller,
       obscureText: isPassword,
       decoration: InputDecoration(
+        border: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white)
+        ),
         hintText: placeholder,
       )
     );
@@ -64,30 +67,94 @@ class _LoginpageState extends State<Loginpage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
-          ),
-        title: Image.asset("images/iconsirek.png"),
+        ),
+        title: Align(
+          alignment: Alignment.centerRight,
+          child: Image.asset(height: MediaQuery.of(context).size.height * 0.06, fit: BoxFit.contain, "images/iconsirek.png"),
+        ), 
         backgroundColor: const Color(0xFF072554),
       ),
       backgroundColor: const Color(0xFF072554),
+      
       body: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _showInput(_emailController, 'Masukkan email', false),
-            _showInput(_passwordController, 'Masukkan Password', true),
-            ElevatedButton(
-              child: const Text('Login'),
-              onPressed: () {
-                if (_emailController.text == 'admin' &&
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Image.asset(height: MediaQuery.of(context).size.height * 0.2, fit: BoxFit.contain, "images/logo.png"),
+            ),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 30),
+              child: Text(
+                "Selamat Datang, \nAdmin/Pimpinan",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20,),
+
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text( style: TextStyle(color: Colors.white), "Email"),
+            ),
+
+            const SizedBox(height: 10,),
+
+            _showInput(_emailController, 'isi email anda', false),
+
+            const SizedBox(height: 20,),
+
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text( style: TextStyle(color: Colors.white), "Password"),
+            ),
+
+            const SizedBox(height: 10,),
+
+            _showInput(_passwordController, 'password', true),
+
+            const SizedBox(height: 20,),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF6A220),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Center(
+                      child: Text(
+                        'Masuk',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                onPressed: () {
+                  if (_emailController.text == 'admin' &&
                     _passwordController.text == 'admin'){
                       _saveemail();
                       _showDialog('Anda berhasil login', const Landing(title: 'Sirek Mobile',));
-                    } else {
+                  } else {
                       _showDialog('email dan Password anda salah', const Loginpage());
-                    }
-              },
-            ),
+                  }
+                },
+              ),
+            ),  
           ],
         ),
       ),

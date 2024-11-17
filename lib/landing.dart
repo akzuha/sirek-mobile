@@ -37,7 +37,7 @@ class Landing extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset("images/iconsirek.png"),
+        title: Image.asset(height: MediaQuery.of(context).size.height * 0.08, fit: BoxFit.contain, "images/iconsirek.png"),
         backgroundColor: const Color(0xFF072554),
       ),
       backgroundColor: const Color(0xFF072554),
@@ -120,7 +120,8 @@ class Landing extends StatelessWidget {
                   ),
                 ),
                 InkWell(
-                  child: const Text('Masuk'),
+                  child: const Text(
+                    style: TextStyle(color: Color(0xFFF6A220),),'Masuk'),
                   onTap: () {
                     _showDialog(
                       context,
