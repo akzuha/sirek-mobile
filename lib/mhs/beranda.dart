@@ -21,7 +21,7 @@ class BerandaPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 16.0),
             child: Image.asset(
               "images/iconsirek.png", // Ikon di sebelah kanan
-              height: 30, // Ukuran ikon diperkecil
+              height: 40, // Ukuran ikon diperkecil
             ),
           ),
         ],
