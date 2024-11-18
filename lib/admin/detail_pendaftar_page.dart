@@ -16,14 +16,18 @@ class DetailPendaftarPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PendaftarPage(),
-              ),
-            );
+            Navigator.pop(context);
           },
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(
+              "images/iconsirek.png", // Path untuk iconsirek.png
+              height: 40, // Tinggi ikon
+            ),
+          ),
+        ],
         title: null, // Kosongkan judul di AppBar
       ),
       body: SingleChildScrollView(

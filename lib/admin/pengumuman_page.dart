@@ -63,47 +63,56 @@ class PengumumanPage extends StatelessWidget {
               ],
             ),
           ),
-          // Tombol Tambah Pengumuman
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddPengumumanPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text(
-                    "Tambah Pengumuman",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF38CC20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // ListView Pengumuman
+          // Expanded ListView untuk konten pengumuman
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               itemCount: 5, // Jumlah pengumuman
               itemBuilder: (context, index) {
-                return _pengumumanCard(
-                  context,
-                  pengumumanName: "Soedirman Student Summit (S3)",
-                  uploadDate: "2024-06-04",
-                );
+                // Tambahkan tombol "Tambah Pengumuman" hanya di bagian atas
+                if (index == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tombol Tambah Pengumuman
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddPengumumanPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        label: const Text(
+                          "Tambah Pengumuman",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF38CC20), // Warna hijau
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10), // Jarak setelah tombol
+                      // Pengumuman Card Pertama
+                      _pengumumanCard(
+                        context,
+                        pengumumanName: "Soedirman Student Summit (S3)",
+                        uploadDate: "2024-06-04",
+                      ),
+                    ],
+                  );
+                } else {
+                  // Pengumuman Card berikutnya
+                  return _pengumumanCard(
+                    context,
+                    pengumumanName: "Pengumuman ke-${index + 1}",
+                    uploadDate: "2024-06-0${index + 1}",
+                  );
+                }
               },
             ),
           ),
