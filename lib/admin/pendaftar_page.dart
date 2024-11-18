@@ -17,17 +17,18 @@ class PendaftarPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Logo
+                // Logo di kanan atas
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    const SizedBox(), // Spacer untuk memindahkan logo ke kanan
                     Image.asset(
-                      'images/iconsirek.png', // Logo di kiri
+                      'images/iconsirek.png', // Logo di kanan
                       height: 40,
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-
                 // Judul
                 const Center(
                   child: Text(
@@ -101,7 +102,7 @@ class PendaftarPage extends StatelessWidget {
   // Widget untuk Pendaftar Card
   Widget _pendaftarCard(BuildContext context, {required String pendaftarName}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16), // Adding spacing between cards
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -115,20 +116,25 @@ class PendaftarPage extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Nama Pendaftar
+          // Nama Pendaftar with more space between text and button
           Expanded(
-            child: Text(
-              pendaftarName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF072554),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  right:
+                      16), // Padding to the right to avoid the name and button being too close
+              child: Text(
+                pendaftarName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF072554),
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(
+              width: 8), // Adding spacing between the name and the button
 
           // Tombol Detail
           ElevatedButton.icon(
@@ -137,8 +143,7 @@ class PendaftarPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => DetailPendaftarPage(
-                    pendaftarName:
-                        pendaftarName, // Pastikan data yang dikirim sesuai
+                    pendaftarName: pendaftarName,
                   ),
                 ),
               );
@@ -146,20 +151,22 @@ class PendaftarPage extends StatelessWidget {
             icon: const Icon(
               Icons.description,
               size: 16,
-              color: Colors.white, // Ikon berwarna putih
+              color: Colors.white, // White icon color
             ),
             label: const Text(
               "Detail",
               style: TextStyle(
-                color: Colors.white, // Teks berwarna putih
+                color: Colors.white, // White text color
                 fontWeight: FontWeight.bold,
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00ADCB), // Warna biru
+              backgroundColor: const Color(0xFF00ADCB), // Blue color
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8), // Button padding
             ),
           ),
         ],
