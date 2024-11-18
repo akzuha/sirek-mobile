@@ -1,34 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:sirek/mhs/beranda.dart'; // Tambahkan import untuk halaman beranda
+import 'package:sirek/mhs/beranda.dart';
 import 'package:sirek/ui/login_page.dart';
 
 class Landing extends StatelessWidget {
   const Landing({super.key, required String title});
 
-  void _showDialog(BuildContext context, String pesan, Widget alamat) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(pesan),
-          actions: [
-            TextButton(
-              child: const Text('Ok'),
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => alamat,
-                  ),
-                );
-              },
+void _showDialog(BuildContext context, String pesan, Widget alamat) {
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        title: Text(
+          pesan,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18.0,
+            color: Colors.blueAccent,
+          ),
+        ),
+        content: Text(
+          "Apakah Anda ingin melanjutkan?",
+          style: TextStyle(
+            fontSize: 16.0,
+            color: Colors.grey[700], 
+          ),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 10.0),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
             ),
-          ],
-        );
-      },
-    );
-  }
+            child: const Text('Kembali'),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+            },
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.blueAccent,
+            ),
+            child: const Text('Lanjut'),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => alamat,
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +122,6 @@ class Landing extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () {
-                      // Navigasi ke halaman beranda
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -102,9 +131,9 @@ class Landing extends StatelessWidget {
                     },
                     child: const Center(
                       child: Text(
-                        'Mulai',
+                        'Get Started',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -130,7 +159,7 @@ class Landing extends StatelessWidget {
                   onTap: () {
                     _showDialog(
                       context,
-                      'Silahkan Login',
+                      'Login hanya untuk pimpinan dan admin',
                       const Loginpage(),
                     );
                   },

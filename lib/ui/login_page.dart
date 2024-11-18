@@ -23,18 +23,32 @@ class _LoginpageState extends State<Loginpage> {
     prefs.setString('email', _emailController.text);
   }
 
-  _showInput(namacontroller, placeholder, isPassword){
-    return TextField(
-      controller: namacontroller,
-      obscureText: isPassword,
-      decoration: InputDecoration(
-        border: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white)
-        ),
-        hintText: placeholder,
-      )
-    );
-  }
+  _showInput(TextEditingController namacontroller, String placeholder, bool isPassword) {
+  return TextField(
+    controller: namacontroller,
+    obscureText: isPassword,
+    style: const TextStyle(
+      color: Colors.white,
+    ),
+    decoration: InputDecoration(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0), 
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white), 
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 2.0), 
+      ),
+      hintText: placeholder,
+      hintStyle: const TextStyle(
+        color: Colors.white70, 
+      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+    ),
+  );
+}
 
   _showDialog(pesan, alamat){
     return showDialog(
@@ -147,7 +161,7 @@ class _LoginpageState extends State<Loginpage> {
                 onPressed: () {
   if (_emailController.text == 'admin' && _passwordController.text == 'admin') {
     _saveemail();
-    Navigator.pushReplacementNamed(context, '/dashboard'); // Navigasi ke dashboard
+    Navigator.pushReplacementNamed(context, '/dashboard');
   } else {
     _showDialog('Email atau Password salah', const Loginpage());
   }
