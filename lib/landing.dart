@@ -28,7 +28,7 @@ class Landing extends StatelessWidget {
                   pesan,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14.0, // Ukuran font lebih kecil
+                    fontSize: 14.0,
                     color: Colors.blueAccent,
                   ),
                   maxLines: 2,
@@ -40,18 +40,9 @@ class Landing extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Login hanya untuk pimpinan dan admin.",
-                style: TextStyle(
-                  fontSize: 12.0, // Ukuran teks diperkecil
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 15),
               const Icon(
                 Icons.warning_amber_rounded,
-                color: Colors.amber,
+                color: Colors.red, // Ikon warning berwarna merah
                 size: 40,
               ),
             ],
@@ -60,7 +51,8 @@ class Landing extends StatelessWidget {
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[400],
+                backgroundColor: Colors.white, // Tombol kembali berwarna putih
+                side: const BorderSide(color: Colors.grey), // Border abu-abu
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -79,7 +71,7 @@ class Landing extends StatelessWidget {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.orange, // Tombol lanjut berwarna oranye
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
