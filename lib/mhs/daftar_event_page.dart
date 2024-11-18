@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'event_page.dart'; // Pastikan file EventPage sudah diimport
+import 'package:sirek/widgets/mhsbottom_nav.dart'; // Import mhsbottom_nav.dart
+import 'event_page.dart'; // Import file EventPage
 
 class DaftarEventPage extends StatelessWidget {
   final String title;
 
-  // Konstruktor untuk menerima parameter title
   const DaftarEventPage({super.key, required this.title});
 
   @override
@@ -24,7 +24,7 @@ class DaftarEventPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 16.0),
             child: Image.asset(
               "images/iconsirek.png", // Ikon di sebelah kanan
-              height: 40, // Ukuran ikon diperkecil
+              height: 40, // Ukuran ikon
             ),
           ),
         ],
@@ -242,6 +242,7 @@ class DaftarEventPage extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1), // Tambahkan navbar di sini
     );
   }
 }

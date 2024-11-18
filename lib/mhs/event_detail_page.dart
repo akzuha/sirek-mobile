@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'daftar_event_page.dart'; // Pastikan file ini ada dan diimport
+import 'daftar_event_page.dart';
+import 'package:sirek/widgets/mhsbottom_nav.dart'; // Import mhsbottom_nav.dart
 
 class EventDetailPage extends StatelessWidget {
   final String title;
   final String description;
 
-  // Konstruktor untuk menerima parameter
   const EventDetailPage({
     super.key,
     required this.title,
@@ -19,17 +19,17 @@ class EventDetailPage extends StatelessWidget {
         elevation: 0,
         backgroundColor: const Color(0xFF072554),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white), // Tanda panah warna putih
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context); // Aksi kembali ke halaman sebelumnya
+            Navigator.pop(context);
           },
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Image.asset(
-              "images/iconsirek.png", // Ikon di sebelah kanan
-              height: 40, // Ukuran ikon diperkecil
+              "images/iconsirek.png",
+              height: 40,
             ),
           ),
         ],
@@ -38,7 +38,6 @@ class EventDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header biru dengan judul
             Container(
               color: const Color(0xFF072554),
               width: double.infinity,
@@ -54,14 +53,12 @@ class EventDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Gambar utama
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.asset(
-                  "images/event_image.png", // Pastikan file gambar ini ada
+                  "images/event_image.png",
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
@@ -69,8 +66,6 @@ class EventDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Tombol download booklet
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton.icon(
@@ -87,16 +82,10 @@ class EventDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-
-            // Deskripsi event
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -106,8 +95,6 @@ class EventDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Informasi tanggal open dan close recruitment
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -115,49 +102,45 @@ class EventDetailPage extends StatelessWidget {
                 children: const [
                   Text(
                     "Open Recruitment : 10 Juni 2024",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
                   Text(
                     "Close Recruitment : 12 Juni 2024",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-
-            // Tombol daftar
-Center(
-  child: ElevatedButton(
-    onPressed: () {
-      // Navigasi ke halaman daftar_event dengan parameter title
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DaftarEventPage(title: title), // Melewatkan parameter title
-        ),
-      );
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFFF6A220),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 10),
-      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-    ),
-    child: const Text(
-      "Daftar Sekarang",
-      style: TextStyle(color: Colors.white),
-    ),
-  ),
-),
-
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DaftarEventPage(title: title),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF6A220),
+                  padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  "Daftar Sekarang",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1), // Tambahkan navbar
     );
   }
 }
