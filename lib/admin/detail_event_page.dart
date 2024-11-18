@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'edit_event_page.dart'; // Pastikan halaman EditEventPage diimpor
+import 'edit_event_page.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
 class DetailEventPage extends StatelessWidget {
