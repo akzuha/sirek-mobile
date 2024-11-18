@@ -10,7 +10,7 @@ class PendaftarPage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Header dengan logo, judul, dan background biru
+          // Header dengan logo di kanan, judul, dan background biru
           Container(
             color: const Color(0xFF072554),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -42,43 +42,65 @@ class PendaftarPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Dropdown pilih event
+                // Dropdown pilih event diperkecil
                 Container(
                   color: const Color(0xFF072554),
-                  padding: const EdgeInsets.all(16),
-                  child: DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    height: 40, // Tinggi dropdown lebih kecil
+                    child: DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8), // Padding diperkecil
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: "Soedirman Student Summit",
+                          child: Text(
+                            "Soedirman Student Summit",
+                            style:
+                                TextStyle(fontSize: 12), // Ukuran font lebih kecil
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: "Desa Cita",
+                          child: Text(
+                            "Desa Cita",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: "Panggil Sedulur",
+                          child: Text(
+                            "Panggil Sedulur",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        // Logika saat memilih event
+                      },
+                      hint: const Text(
+                        "Pilih Event",
+                        style: TextStyle(
+                          fontSize: 14, // Ukuran font lebih kecil
+                          color: Colors.grey, // Warna font abu-abu
+                        ),
                       ),
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: "Soedirman Student Summit",
-                        child: Text("Soedirman Student Summit"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Desa Cita",
-                        child: Text("Desa Cita"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Panggil Sedulur",
-                        child: Text("Panggil Sedulur"),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      // Logika saat memilih event
-                    },
-                    hint: const Text("Pilih Event"),
                   ),
                 ),
               ],
             ),
           ),
+
+          // Tambahkan jarak antara container dropdown dan ListView
+          const SizedBox(height: 16), // Jarak antara Container dan ListView
 
           // ListView
           Expanded(

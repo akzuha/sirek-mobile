@@ -18,6 +18,15 @@ class DetailEventPage extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(
+              "images/iconsirek.png", // Path untuk iconsirek.png
+              height: 40, // Tinggi ikon
+            ),
+          ),
+        ],
         title: null, // Kosongkan judul di AppBar
       ),
       body: SingleChildScrollView(
@@ -34,7 +43,7 @@ class DetailEventPage extends StatelessWidget {
                   eventName,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 18, // Ukuran font diperkecil
                     fontWeight: FontWeight.bold,
                   ),
                 ),
