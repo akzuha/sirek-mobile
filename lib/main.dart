@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: "Sirek BEM Unsoed",
       theme: ThemeData(
         primaryColor: const Color(0xFF072554),
-        fontFamily: 'Poppins', // Atur font default menjadi Poppins
+        fontFamily: 'Poppins',
       ),
       initialRoute: '/',
       routes: {

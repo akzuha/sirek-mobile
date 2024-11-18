@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sirek/landing.dart';
+import 'package:sirek/admin/dashboard.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({ super.key });
@@ -148,9 +148,9 @@ class _LoginpageState extends State<Loginpage> {
                   if (_emailController.text == 'admin' &&
                     _passwordController.text == 'admin'){
                       _saveemail();
-                      _showDialog('Anda berhasil login', const Landing(title: 'Sirek Mobile',));
+                      _showDialog('Anda berhasil login', const Dashboard());
                   } else {
-                      _showDialog('email dan Password anda salah', const Loginpage());
+                      _showDialog('Email atau Password anda salah', const Loginpage());
                   }
                 },
               ),

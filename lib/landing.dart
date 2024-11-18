@@ -15,10 +15,7 @@ class Landing extends StatelessWidget {
             TextButton(
               child: const Text('Ok'),
               onPressed: () {
-                // Close the dialog
                 Navigator.pop(dialogContext);
-
-                // Navigate to the next page
                 Navigator.push(
                   context,
                   MaterialPageRoute(
