@@ -46,8 +46,6 @@ class BerandaPage extends StatelessWidget {
                 ),
               ),
             ),
-            // Container putih untuk deskripsi dan logo
-            // Container putih untuk deskripsi dan logo
 Container(
   width: double.infinity,
   margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10), // Margin kanan-kiri 30

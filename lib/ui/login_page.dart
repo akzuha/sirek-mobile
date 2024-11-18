@@ -145,14 +145,14 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ),
                 onPressed: () {
-                  if (_emailController.text == 'admin' &&
-                    _passwordController.text == 'admin'){
-                      _saveemail();
-                      _showDialog('Anda berhasil login', const Dashboard());
-                  } else {
-                      _showDialog('Email atau Password anda salah', const Loginpage());
-                  }
-                },
+  if (_emailController.text == 'admin' && _passwordController.text == 'admin') {
+    _saveemail();
+    Navigator.pushReplacementNamed(context, '/dashboard'); // Navigasi ke dashboard
+  } else {
+    _showDialog('Email atau Password salah', const Loginpage());
+  }
+},
+
               ),
             ),  
           ],
