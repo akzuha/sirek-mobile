@@ -54,7 +54,6 @@ class Dashboard extends StatelessWidget {
                   context,
                   name: "John Doe",
                   email: "johndoe@bem-unsoed.ac.id",
-                  imagePath: "images/profile_placeholder.png",
                 ),
                 const SizedBox(height: 20),
 
@@ -94,62 +93,76 @@ class Dashboard extends StatelessWidget {
     BuildContext context, {
     required String name,
     required String email,
-    required String imagePath,
   }) {
-    return GestureDetector(
-      onTap: () {
-        // Navigasi ke halaman ProfilePage
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ProfilePage()),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10), // Jarak vertikal
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF072554), Color(0xFF0B3B91)], // Gradasi biru
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Row(
-          children: [
-            // Foto Profil
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: AssetImage(imagePath),
-            ),
-            const SizedBox(width: 16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4),
+            blurRadius: 10,
+            offset: const Offset(0, 5), // Bayangan lebih tajam
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Ikon Profil
+          const Icon(
+            Icons.account_circle,
+            size: 50,
+            color: Colors.white, // Warna putih untuk ikon profil
+          ),
+          const SizedBox(width: 16),
 
-            // Informasi Profil
-            Column(
+          // Informasi Profil
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 20, // Ukuran lebih besar
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF072554),
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 5),
                 Text(
                   email,
                   style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
+                    fontSize: 16,
+                    color: Colors.white70,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+
+          // Ikon Edit
+          IconButton(
+            icon: const Icon(
+              Icons.edit,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: () {
+              // Navigasi ke halaman ProfilePage
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
