@@ -149,7 +149,7 @@ class PengumumanPage extends StatelessWidget {
                 Text(
                   pengumumanName,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14, // Ukuran font lebih kecil
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF072554),
                   ),
