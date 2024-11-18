@@ -18,11 +18,13 @@ class EventPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Logo
+                // Logo di sebelah kanan
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    const SizedBox(), // Spacer untuk memindahkan logo ke kanan
                     Image.asset(
-                      'images/iconsirek.png', // Logo di kiri
+                      'images/iconsirek.png', // Logo di kanan
                       height: 40,
                     ),
                   ],
@@ -42,13 +44,24 @@ class EventPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Search Bar
+                // Search Bar diperkecil
                 TextField(
                   decoration: InputDecoration(
                     hintText: "Apa yang ingin kamu cari...",
+                    hintStyle: const TextStyle(
+                      fontSize: 14, // Ukuran teks placeholder lebih kecil
+                      color: Colors.grey,
+                    ),
                     prefixIcon: const Icon(Icons.search, color: Colors.black),
                     filled: true,
                     fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 8, // Tinggi padding sangat kecil
+                      horizontal: 12,
+                    ),
+                    constraints: const BoxConstraints(
+                      maxHeight: 40, // Atur tinggi maksimum Search Bar
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide.none,
@@ -59,47 +72,54 @@ class EventPage extends StatelessWidget {
             ),
           ),
 
-          // Tombol Tambah Event
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Navigasi ke halaman Tambah Event
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddEventPage()),
-                    );
-                  },
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text(
-                    "Tambah Event",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF38CC20), // Warna hijau
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // ListView Event
+          // ListView Event dengan Tombol Tambah di atas
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 4, // Jumlah event
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: 5, // Jumlah event
               itemBuilder: (context, index) {
-                return _eventCard(
-                  context,
-                  eventName: "Soedirman Student Summit (S3)",
-                );
+                // Tambahkan tombol "Tambah Event" hanya di bagian atas
+                if (index == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tombol Tambah Event
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Navigasi ke halaman Tambah Event
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddEventPage()),
+                          );
+                        },
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        label: const Text(
+                          "Tambah Event",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF38CC20), // Warna hijau
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10), // Jarak setelah tombol
+                      // Event Card Pertama
+                      _eventCard(
+                        context,
+                        eventName: "Soedirman Student Summit (S3)",
+                      ),
+                    ],
+                  );
+                } else {
+                  // Event Card berikutnya
+                  return _eventCard(
+                    context,
+                    eventName: "Event ke-${index + 1}",
+                  );
+                }
               },
             ),
           ),
