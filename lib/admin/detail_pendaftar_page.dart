@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
-import 'package:sirek/admin/pendaftar_page.dart';
 import 'package:sirek/admin/edit_pendaftar_page.dart';
 
 class DetailPendaftarPage extends StatelessWidget {

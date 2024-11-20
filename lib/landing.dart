@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sirek/auth/auth_gate.dart';
 import 'package:sirek/mhs/beranda.dart';
-import 'package:sirek/ui/login_page.dart';
 
 class Landing extends StatelessWidget {
   final String title;
@@ -37,10 +37,10 @@ class Landing extends StatelessWidget {
               ),
             ],
           ),
-          content: Column(
+          content: const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.warning_amber_rounded,
                 color: Colors.red, // Ikon warning berwarna merah
                 size: 40,
@@ -210,7 +210,7 @@ class Landing extends StatelessWidget {
                     _showDialog(
                       context,
                       'Login hanya untuk pimpinan dan admin',
-                      const Loginpage(),
+                      const AuthGate(),
                     );
                   },
                 ),

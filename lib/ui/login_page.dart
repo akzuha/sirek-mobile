@@ -1,26 +1,39 @@
-// ignore_for_file: unused_element
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sirek/admin/dashboard.dart';
+import 'package:sirek/auth/auth_service.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({ super.key });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _LoginpageState createState() => _LoginpageState();
+  State<Loginpage> createState() => _LoginpageState();
 }
 
 class _LoginpageState extends State<Loginpage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  // ignore: prefer_typing_uninitialized_variables
-  var namauser;
+  //get auth service
+  final authService = AuthService();
 
-  void _saveemail() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('email', _emailController.text);
+  //text controller
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  //login button pressed
+  void login() async {
+    //prepare data
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    //attempt login
+    try{
+      await authService.signInWithEmailPassword(email, password);
+    }
+
+    //catch any errors
+    catch (e){
+      if(mounted){
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    }
   }
 
   _showInput(TextEditingController namacontroller, String placeholder, bool isPassword) {
@@ -148,6 +161,7 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
+                onPressed: login,
                 child: const Center(
                       child: Text(
                         'Masuk',
@@ -158,14 +172,6 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                     ),
-                onPressed: () {
-  if (_emailController.text == 'admin' && _passwordController.text == 'admin') {
-    _saveemail();
-    Navigator.pushReplacementNamed(context, '/dashboard');
-  } else {
-    _showDialog('Email atau Password salah', const Loginpage());
-  }
-},
 
               ),
             ),  
