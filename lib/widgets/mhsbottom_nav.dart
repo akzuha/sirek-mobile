@@ -4,9 +4,9 @@ import 'package:sirek/ui/event_page.dart';
 import 'package:sirek/ui/pengumuman_page.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
-  final int currentIndex; // Indeks halaman aktif
-
   const CustomBottomNavBar({super.key, required this.currentIndex});
+
+  final int currentIndex; // Indeks halaman aktif
 
   void _onTap(BuildContext context, int index) {
     switch (index) {
@@ -38,7 +38,8 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex, // Indeks halaman saat ini
-      onTap: (index) => _onTap(context, index), // Navigasi ke halaman yang dipilih
+      onTap: (index) =>
+          _onTap(context, index), // Navigasi ke halaman yang dipilih
       selectedItemColor: const Color(0xFF072554),
       unselectedItemColor: Colors.grey,
       items: const [

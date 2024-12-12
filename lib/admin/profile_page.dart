@@ -6,8 +6,9 @@ class ProfilePage extends StatelessWidget {
   ProfilePage({super.key});
 
   final user = FirebaseAuth.instance.currentUser!;
-  final _passwordController = TextEditingController();
+
   final _confirmPasswordController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +173,8 @@ class ProfilePage extends StatelessWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const Landing(title: "Halaman Landing"),
+                        builder: (context) =>
+                            const Landing(title: "Halaman Landing"),
                       ),
                       (route) => false,
                     );
@@ -182,7 +184,8 @@ class ProfilePage extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12), // Tinggi tombol lebih kecil
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12), // Tinggi tombol lebih kecil
                   ),
                   icon: const Icon(
                     Icons.logout,

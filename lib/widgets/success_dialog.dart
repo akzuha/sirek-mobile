@@ -2,26 +2,16 @@ import 'package:flutter/material.dart';
 
 class Consts {
   Consts._();
-  static const double padding = 16.0;
+
   static const double avatarRadius = 66.0;
+  static const double padding = 16.0;
 }
 
 class SuccessDialog extends StatelessWidget {
-  final String? description;
-  final VoidCallback? okClick;
-
   const SuccessDialog({super.key, this.description, this.okClick});
 
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Consts.padding)),
-      elevation: 0.0,
-      backgroundColor: Colors.transparent,
-      child: dialogContent(context),
-    );
-  }
+  final String? description;
+  final VoidCallback? okClick;
 
   dialogContent(BuildContext context) {
     return Container(
@@ -75,6 +65,17 @@ class SuccessDialog extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Consts.padding)),
+      elevation: 0.0,
+      backgroundColor: Colors.transparent,
+      child: dialogContent(context),
     );
   }
 }

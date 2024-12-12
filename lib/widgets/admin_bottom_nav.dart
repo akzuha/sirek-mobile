@@ -5,12 +5,13 @@ import 'package:sirek/admin/pendaftar_page.dart';
 import 'package:sirek/admin/pengumuman_page.dart';
 
 class AdminBottomNavBar extends StatelessWidget {
-  final int currentIndex; // Indeks halaman aktif
-
   const AdminBottomNavBar({super.key, required this.currentIndex});
 
+  final int currentIndex; // Indeks halaman aktif
+
   void _onTap(BuildContext context, int index) {
-    if (index == currentIndex) return; // Jika halaman sudah aktif, tidak perlu navigasi ulang
+    if (index == currentIndex)
+      return; // Jika halaman sudah aktif, tidak perlu navigasi ulang
 
     switch (index) {
       case 0:
@@ -22,7 +23,7 @@ class AdminBottomNavBar extends StatelessWidget {
       case 1:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => EventPage()),
+          MaterialPageRoute(builder: (context) => const EventPage()),
         );
         break;
       case 2:

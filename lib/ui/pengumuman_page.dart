@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart'; // Untuk membuka link file PDF
 
@@ -6,64 +5,6 @@ import '../widgets/mhsbottom_nav.dart';
 
 class PengumumanPage extends StatelessWidget {
   const PengumumanPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    double appBarHeight = MediaQuery.of(context).size.height * 0.06;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          "images/iconsirek.png",
-          height: appBarHeight,
-          fit: BoxFit.contain,
-        ),
-        backgroundColor: const Color(0xFF072554),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Container biru dengan judul
-            Container(
-              color: const Color(0xFF072554),
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: const Center(
-                child: Text(
-                  "Pengumuman Pengumuman",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // List Pengumuman
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(), // Agar tidak konflik dengan scroll utama
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: 5, // Jumlah pengumuman
-              itemBuilder: (context, index) {
-                return _pengumumanCard(
-                  context,
-                  title: "Soedirman Student Summit (S3)",
-                  description:
-                      "Silahkan unduh file pengumuman melalui tombol di bawah ini.",
-                  pdfUrl: "https://example.com/file_pengumuman_$index.pdf", // URL PDF untuk unduhan
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2), // Navbar di bawah
-    );
-  }
 
   // Widget untuk kartu pengumuman
   Widget _pengumumanCard(
@@ -129,8 +70,10 @@ class PengumumanPage extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6A220), // Warna tombol
-                    minimumSize: const Size(100, 30), // Ukuran tombol diperkecil
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize:
+                        const Size(100, 30), // Ukuran tombol diperkecil
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -230,5 +173,65 @@ class PengumumanPage extends StatelessWidget {
       },
     );
   }
-}
 
+  @override
+  Widget build(BuildContext context) {
+    double appBarHeight = MediaQuery.of(context).size.height * 0.06;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Image.asset(
+          "images/iconsirek.png",
+          height: appBarHeight,
+          fit: BoxFit.contain,
+        ),
+        backgroundColor: const Color(0xFF072554),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Container biru dengan judul
+            Container(
+              color: const Color(0xFF072554),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: const Center(
+                child: Text(
+                  "Pengumuman Pengumuman",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // List Pengumuman
+            ListView.builder(
+              shrinkWrap: true,
+              physics:
+                  const NeverScrollableScrollPhysics(), // Agar tidak konflik dengan scroll utama
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: 5, // Jumlah pengumuman
+              itemBuilder: (context, index) {
+                return _pengumumanCard(
+                  context,
+                  title: "Soedirman Student Summit (S3)",
+                  description:
+                      "Silahkan unduh file pengumuman melalui tombol di bawah ini.",
+                  pdfUrl:
+                      "https://example.com/file_pengumuman_$index.pdf", // URL PDF untuk unduhan
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar:
+          const CustomBottomNavBar(currentIndex: 2), // Navbar di bawah
+    );
+  }
+}

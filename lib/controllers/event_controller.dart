@@ -10,13 +10,16 @@ class EventController {
   }
 
   // Create a new event with files
-  Future<void> createEventWithFiles(EventModel event, File? imageFile, File? bookletFile) async {
+  Future<void> createEventWithFiles(
+      EventModel event, File? imageFile, File? bookletFile) async {
     await _eventRepository.createEventWithFiles(event, imageFile, bookletFile);
   }
 
   // Update an event with files
-  Future<void> updateEventWithFiles(String id, EventModel event, File? imageFile, File? bookletFile) async {
-    await _eventRepository.updateEventWithFiles(id, event, imageFile, bookletFile);
+  Future<void> updateEventWithFiles(
+      String id, EventModel event, File? imageFile, File? bookletFile) async {
+    await _eventRepository.updateEventWithFiles(
+        id, event, imageFile, bookletFile);
   }
 
   // Delete an event with its associated files

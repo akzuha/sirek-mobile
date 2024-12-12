@@ -6,12 +6,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:sirek/widgets/mhsbottom_nav.dart';
 
 class EventDetailPage extends StatelessWidget {
-  final String eventId;
-
   const EventDetailPage({super.key, required this.eventId});
 
+  final String eventId;
+
   Future<Map<String, dynamic>> _fetchEventDetails(String id) async {
-    final eventDoc = await FirebaseFirestore.instance.collection('event').doc(id).get();
+    final eventDoc =
+        await FirebaseFirestore.instance.collection('event').doc(id).get();
     if (eventDoc.exists) {
       return eventDoc.data()!;
     } else {
@@ -112,12 +113,14 @@ class EventDetailPage extends StatelessWidget {
                             await _launchURL(bookletUrl);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Gagal membuka booklet: $e")),
+                              SnackBar(
+                                  content: Text("Gagal membuka booklet: $e")),
                             );
                           }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Booklet tidak tersedia")),
+                            const SnackBar(
+                                content: Text("Booklet tidak tersedia")),
                           );
                         }
                       },
@@ -128,7 +131,8 @@ class EventDetailPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                       ),
                     ),
                   ),
@@ -139,7 +143,8 @@ class EventDetailPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       eventData['deskripsi'] ?? "No description available",
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.justify,
                     ),
                   ),
@@ -154,7 +159,8 @@ class EventDetailPage extends StatelessWidget {
                               (eventData['openRec'] as Timestamp).toDate(),
                             )}"
                           : "Open Recruitment: Tanggal tidak tersedia",
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.justify,
                     ),
                   ),
@@ -169,12 +175,13 @@ class EventDetailPage extends StatelessWidget {
                               (eventData['closeRec'] as Timestamp).toDate(),
                             )}"
                           : "Close Recruitment: Tanggal tidak tersedia",
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.justify,
                     ),
                   ),
 
-                  const SizedBox(height: 20),                  
+                  const SizedBox(height: 20),
 
                   // Register Button
                   Center(
@@ -191,7 +198,8 @@ class EventDetailPage extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFF6A220),
-                        padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 90, vertical: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

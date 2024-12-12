@@ -14,7 +14,7 @@ class PendaftarPage extends StatelessWidget {
   }
 
   Widget _headerContainer() {
-    return Container(   
+    return Container(
       color: const Color(0xFF072554),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       child: Column(
@@ -36,13 +36,13 @@ class PendaftarPage extends StatelessWidget {
           const Center(
             child: Text(
               "Pendaftar",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
+          ),
           const SizedBox(height: 20),
 
           // Dropdown pilih event diperkecil
@@ -66,8 +66,7 @@ class PendaftarPage extends StatelessWidget {
                     value: "Soedirman Student Summit",
                     child: Text(
                       "Soedirman Student Summit",
-                      style:
-                          TextStyle(fontSize: 12), // Ukuran font lebih kecil
+                      style: TextStyle(fontSize: 12), // Ukuran font lebih kecil
                     ),
                   ),
                   DropdownMenuItem(
@@ -99,12 +98,13 @@ class PendaftarPage extends StatelessWidget {
             ),
           ),
         ],
-      ),               
+      ),
     );
   }
 
   // Widget untuk Pendaftar Card
-  Widget _pendaftarCard(BuildContext context, {required String pendaftarName, required String pendaftarId}) {
+  Widget _pendaftarCard(BuildContext context,
+      {required String pendaftarName, required String pendaftarId}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -123,7 +123,7 @@ class PendaftarPage extends StatelessWidget {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(right:16),
+              padding: const EdgeInsets.only(right: 16),
               child: Text(
                 pendaftarName,
                 style: const TextStyle(
@@ -178,54 +178,53 @@ class PendaftarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<PendaftarModel>>(
-        future: _loadPendaftar(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Column(
-              children: [
-                // Header
-                _headerContainer(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text("No events found"),
-                ),
-              ],
-            );
-          } else {
-            final pendaftars = snapshot.data!;
-
-            return Column(
-              children: [
-                // Header dengan logo di kanan, judul, dan background biru
-                _headerContainer(),           
-
-                // Tambahkan jarak antara container dropdown dan ListView
-                const SizedBox(height: 16),
-
-                // ListView
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: pendaftars.length,
-                    itemBuilder: (context, index) {
-                      final pendaftar = pendaftars[index];
-                      return _pendaftarCard(
-                        context,
-                        pendaftarName: pendaftar.namaPendaftar,
-                        pendaftarId: pendaftar.id,
-                      );
-                    },
+          future: _loadPendaftar(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Column(
+                children: [
+                  // Header
+                  _headerContainer(),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Text("No events found"),
                   ),
-                ),
-              ],
-          );
-        }
-        }
-      ),
+                ],
+              );
+            } else {
+              final pendaftars = snapshot.data!;
+
+              return Column(
+                children: [
+                  // Header dengan logo di kanan, judul, dan background biru
+                  _headerContainer(),
+
+                  // Tambahkan jarak antara container dropdown dan ListView
+                  const SizedBox(height: 16),
+
+                  // ListView
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: pendaftars.length,
+                      itemBuilder: (context, index) {
+                        final pendaftar = pendaftars[index];
+                        return _pendaftarCard(
+                          context,
+                          pendaftarName: pendaftar.namaPendaftar,
+                          pendaftarId: pendaftar.id,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+          }),
       bottomNavigationBar: const AdminBottomNavBar(currentIndex: 2),
     );
   }

@@ -8,34 +8,34 @@ import 'package:sirek/models/pendaftar_model.dart';
 import 'package:sirek/controllers/pendaftar_controller.dart';
 
 class DaftarEventPage extends StatefulWidget {
-  final String eventId;
-
   const DaftarEventPage({super.key, required this.eventId});
+
+  final String eventId;
 
   @override
   State<DaftarEventPage> createState() => _DaftarEventPageState();
 }
 
 class _DaftarEventPageState extends State<DaftarEventPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _controller = PendaftarController();
-
-  String eventName = "";
-  String nama = "";
-  String email = "";
-  int telepon = 0;
   String alamat = "";
-  DateTime? tglLahir;
-  String jenisKelamin = "";
-  String nim = "";
-  String jurusan = "";
-  String fakultas = "";
-  int angkatan = 0;
-  String pilihanSatu = "";
-  String pilihanDua = "";
   String alasan = "";
+  int angkatan = 0;
+  String email = "";
+  String eventName = "";
+  String fakultas = "";
   String fileCV = "";
-  String fileLOC = ""; 
+  String fileLOC = "";
+  String jenisKelamin = "";
+  String jurusan = "";
+  String nama = "";
+  String nim = "";
+  String pilihanDua = "";
+  String pilihanSatu = "";
+  int telepon = 0;
+  DateTime? tglLahir;
+
+  final _controller = PendaftarController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -44,7 +44,10 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
   }
 
   Future<void> _fetchEventName() async {
-    DocumentSnapshot eventDoc = await FirebaseFirestore.instance.collection('event').doc(widget.eventId).get();
+    DocumentSnapshot eventDoc = await FirebaseFirestore.instance
+        .collection('event')
+        .doc(widget.eventId)
+        .get();
     setState(() {
       eventName = eventDoc['namaEvent'] ?? "Nama Event Tidak Ditemukan";
     });
@@ -98,7 +101,8 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
 
   Future<String?> _uploadFile(String filePath, String fileName) async {
     try {
-      final storageRef = FirebaseStorage.instance.ref().child('uploads/$fileName');
+      final storageRef =
+          FirebaseStorage.instance.ref().child('uploads/$fileName');
       final uploadTask = storageRef.putFile(File(filePath));
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
@@ -167,14 +171,17 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               const SizedBox(height: 20),
               Text(
                 "Event: $eventName",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
               // Nama
               TextFormField(
                 decoration: const InputDecoration(labelText: "Nama"),
-                validator: (value) => value == null || value.isEmpty ? "Nama tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Nama tidak boleh kosong"
+                    : null,
                 onSaved: (value) => nama = value!,
               ),
               const SizedBox(height: 20),
@@ -183,7 +190,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               TextFormField(
                 decoration: const InputDecoration(labelText: "Email"),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) => value == null || !value.contains("@") ? "Email tidak valid" : null,
+                validator: (value) => value == null || !value.contains("@")
+                    ? "Email tidak valid"
+                    : null,
                 onSaved: (value) => email = value!,
               ),
               const SizedBox(height: 20),
@@ -192,7 +201,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               TextFormField(
                 decoration: const InputDecoration(labelText: "Telepon"),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? "Telepon tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Telepon tidak boleh kosong"
+                    : null,
                 onSaved: (value) => telepon = int.parse(value!),
               ),
               const SizedBox(height: 20),
@@ -200,7 +211,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               // Alamat
               TextFormField(
                 decoration: const InputDecoration(labelText: "Alamat"),
-                validator: (value) => value == null || value.isEmpty ? "Alamat tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Alamat tidak boleh kosong"
+                    : null,
                 onSaved: (value) => alamat = value!,
               ),
               const SizedBox(height: 20),
@@ -223,7 +236,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                   }
                 },
                 controller: TextEditingController(
-                  text: tglLahir != null ? DateFormat('dd MMM yyyy').format(tglLahir!) : "",
+                  text: tglLahir != null
+                      ? DateFormat('dd MMM yyyy').format(tglLahir!)
+                      : "",
                 ),
               ),
               const SizedBox(height: 20),
@@ -232,8 +247,10 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: "Jenis Kelamin"),
                 items: const [
-                  DropdownMenuItem(value: "Laki-Laki", child: Text("Laki-Laki")),
-                  DropdownMenuItem(value: "Perempuan", child: Text("Perempuan")),
+                  DropdownMenuItem(
+                      value: "Laki-Laki", child: Text("Laki-Laki")),
+                  DropdownMenuItem(
+                      value: "Perempuan", child: Text("Perempuan")),
                 ],
                 onChanged: (value) => jenisKelamin = value!,
               ),
@@ -242,7 +259,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               // NIM
               TextFormField(
                 decoration: const InputDecoration(labelText: "NIM"),
-                validator: (value) => value == null || value.isEmpty ? "NIM tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "NIM tidak boleh kosong"
+                    : null,
                 onSaved: (value) => nim = value!,
               ),
               const SizedBox(height: 20),
@@ -250,7 +269,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               // Jurusan
               TextFormField(
                 decoration: const InputDecoration(labelText: "Jurusan"),
-                validator: (value) => value == null || value.isEmpty ? "Jurusan tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Jurusan tidak boleh kosong"
+                    : null,
                 onSaved: (value) => jurusan = value!,
               ),
               const SizedBox(height: 20),
@@ -258,7 +279,9 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               // Fakultas
               TextFormField(
                 decoration: const InputDecoration(labelText: "Fakultas"),
-                validator: (value) => value == null || value.isEmpty ? "Fakultas tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Fakultas tidak boleh kosong"
+                    : null,
                 onSaved: (value) => fakultas = value!,
               ),
               const SizedBox(height: 20),
@@ -267,7 +290,10 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
               TextFormField(
                 decoration: const InputDecoration(labelText: "Angkatan"),
                 keyboardType: TextInputType.number,
-                validator: (value) => value == null || int.tryParse(value) == null ? "Angkatan harus berupa angka" : null,
+                validator: (value) =>
+                    value == null || int.tryParse(value) == null
+                        ? "Angkatan harus berupa angka"
+                        : null,
                 onSaved: (value) => angkatan = int.parse(value!),
               ),
               const SizedBox(height: 20),
@@ -280,14 +306,22 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                   DropdownMenuItem(value: "Humas", child: Text("Humas")),
                   DropdownMenuItem(value: "ATP", child: Text("ATP")),
                   DropdownMenuItem(value: "Konsumsi", child: Text("Konsumsi")),
-                  DropdownMenuItem(value: "Medis/P3K", child: Text("Medis/P3K")),
-                  DropdownMenuItem(value: "Sponsorship", child: Text("Sponsorship")),
-                  DropdownMenuItem(value: "Keamanan/Lapangan", child: Text("Keamanan/Lapangan")),
+                  DropdownMenuItem(
+                      value: "Medis/P3K", child: Text("Medis/P3K")),
+                  DropdownMenuItem(
+                      value: "Sponsorship", child: Text("Sponsorship")),
+                  DropdownMenuItem(
+                      value: "Keamanan/Lapangan",
+                      child: Text("Keamanan/Lapangan")),
                   DropdownMenuItem(value: "PDD", child: Text("PDD")),
-                  DropdownMenuItem(value: "Sekretaris", child: Text("Sekretaris")),
-                  DropdownMenuItem(value: "Bendahara", child: Text("Bendahara")),
+                  DropdownMenuItem(
+                      value: "Sekretaris", child: Text("Sekretaris")),
+                  DropdownMenuItem(
+                      value: "Bendahara", child: Text("Bendahara")),
                 ],
-                validator: (value) => value == null || value.isEmpty ? "Pilihan 1 tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Pilihan 1 tidak boleh kosong"
+                    : null,
                 onChanged: (value) => pilihanSatu = value!,
               ),
               const SizedBox(height: 20),
@@ -300,22 +334,33 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                   DropdownMenuItem(value: "Humas", child: Text("Humas")),
                   DropdownMenuItem(value: "ATP", child: Text("ATP")),
                   DropdownMenuItem(value: "Konsumsi", child: Text("Konsumsi")),
-                  DropdownMenuItem(value: "Medis/P3K", child: Text("Medis/P3K")),
-                  DropdownMenuItem(value: "Sponsorship", child: Text("Sponsorship")),
-                  DropdownMenuItem(value: "Keamanan/Lapangan", child: Text("Keamanan/Lapangan")),
+                  DropdownMenuItem(
+                      value: "Medis/P3K", child: Text("Medis/P3K")),
+                  DropdownMenuItem(
+                      value: "Sponsorship", child: Text("Sponsorship")),
+                  DropdownMenuItem(
+                      value: "Keamanan/Lapangan",
+                      child: Text("Keamanan/Lapangan")),
                   DropdownMenuItem(value: "PDD", child: Text("PDD")),
-                  DropdownMenuItem(value: "Sekretaris", child: Text("Sekretaris")),
-                  DropdownMenuItem(value: "Bendahara", child: Text("Bendahara")),
+                  DropdownMenuItem(
+                      value: "Sekretaris", child: Text("Sekretaris")),
+                  DropdownMenuItem(
+                      value: "Bendahara", child: Text("Bendahara")),
                 ],
-                validator: (value) => value == null || value.isEmpty ? "Pilihan 2 tidak boleh kosong" : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Pilihan 2 tidak boleh kosong"
+                    : null,
                 onChanged: (value) => pilihanDua = value!,
               ),
-              const SizedBox(height: 20),              
+              const SizedBox(height: 20),
 
               // Alasan
               TextFormField(
-                decoration: const InputDecoration(labelText: "Alasan Mendaftar"),
-                validator: (value) => value == null || value.isEmpty ? "Alasan tidak boleh kosong" : null,
+                decoration:
+                    const InputDecoration(labelText: "Alasan Mendaftar"),
+                validator: (value) => value == null || value.isEmpty
+                    ? "Alasan tidak boleh kosong"
+                    : null,
                 onSaved: (value) => alasan = value!,
               ),
               const SizedBox(height: 20),
@@ -341,7 +386,8 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                     child: const Text("Upload File LOC"),
                   ),
                   const SizedBox(width: 10),
-                  Text(fileLOC.isEmpty ? "Belum ada file" : "File LOC diunggah"),
+                  Text(
+                      fileLOC.isEmpty ? "Belum ada file" : "File LOC diunggah"),
                 ],
               ),
               const SizedBox(height: 20),

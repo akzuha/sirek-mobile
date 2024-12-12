@@ -16,95 +16,96 @@ class PengumumanPage extends StatefulWidget {
 class _PengumumanPageState extends State<PengumumanPage> {
   final PengumumanController _pengumumanController = PengumumanController();
 
-  Future<List<PengumumanModel>> _loadPengumuman() {
-    return _pengumumanController.getAllPengumuman();
+  Future<List<PengumumanModel>> _loadPengumuman() async {
+    try {
+      return await _pengumumanController.getAllPengumuman();
+    } catch (e) {
+      throw Exception("Gagal memuat data pengumuman: $e");
+    }
   }
 
-  Widget _tambahDataButton(){
-    return 
-    // Tambah Data Button
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AddPengumumanPage()),
-                        );
-                      },
-                      icon: const Icon(Icons.add, color: Colors.white),
-                      label: const Text(
-                        "Tambah Pengumuman",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF38CC20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-  }
-
-  Widget _headerContainer(){
-    return Container(
-            color: const Color(0xFF072554),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Logo di kanan atas
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(), // Spacer untuk memindahkan logo ke kanan
-                    Image.asset(
-                      'images/iconsirek.png', // Logo di kanan
-                      height: 40,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Judul Pengumuman
-                const Center(
-                  child: Text(
-                    "Pengumuman",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Search Bar
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Apa yang ingin kamu cari...",
-                    hintStyle:
-                        const TextStyle(fontSize: 14, color: Colors.grey),
-                    prefixIcon: const Icon(Icons.search, color: Colors.black),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    constraints: const BoxConstraints(maxHeight: 40),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ],
+  Widget _tambahDataButton() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AddPengumumanPage()),
+            );
+          },
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            "Tambah Pengumuman",
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF38CC20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
-          );
+          ),
+        ),
+      ),
+    );
   }
 
-  // Widget untuk Pengumuman Card
+  Widget _headerContainer() {
+    return Container(
+      color: const Color(0xFF072554),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Logo di kanan atas
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(),
+              Image.asset(
+                'images/iconsirek.png', // Logo di kanan
+                height: 40,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Judul Pengumuman
+          const Center(
+            child: Text(
+              "Pengumuman",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Search Bar
+          TextField(
+            decoration: InputDecoration(
+              hintText: "Apa yang ingin kamu cari...",
+              hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+              prefixIcon: const Icon(Icons.search, color: Colors.black),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              constraints: const BoxConstraints(maxHeight: 40),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _pengumumanCard(BuildContext context,
       {required String pengumumanName, required String uploadDate}) {
     return Container(
@@ -131,7 +132,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                 Text(
                   pengumumanName,
                   style: const TextStyle(
-                    fontSize: 14, // Ukuran font lebih kecil
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF072554),
                   ),
@@ -200,7 +201,6 @@ class _PengumumanPageState extends State<PengumumanPage> {
     );
   }
 
-  // Fungsi untuk menampilkan dialog konfirmasi hapus
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -262,7 +262,6 @@ class _PengumumanPageState extends State<PengumumanPage> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Column(
               children: [
-                // Header
                 _headerContainer(),
                 _tambahDataButton(),
                 const Padding(
@@ -276,21 +275,21 @@ class _PengumumanPageState extends State<PengumumanPage> {
             return Column(
               children: [
                 _headerContainer(),
-
-                // Tambah Data Button
                 _tambahDataButton(),
-
-                // Expanded ListView untuk konten pengumuman
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     itemCount: pengumumans.length,
                     itemBuilder: (context, index) {
                       final pengumuman = pengumumans[index];
-                      final tanggalPengumuman = DateFormat('dd MMMM yyyy', 'id_ID').format(DateTime.parse(pengumuman.tanggalPengumuman as String));
+                      final tanggalPengumuman =
+                          DateFormat('dd MMMM yyyy', 'id_ID')
+                              .format(pengumuman.tanggalPengumuman);
+
                       return _pengumumanCard(
-                        context, 
-                        pengumumanName: pengumuman.namaEvent, 
+                        context,
+                        pengumumanName: pengumuman.namaEvent,
                         uploadDate: tanggalPengumuman,
                       );
                     },

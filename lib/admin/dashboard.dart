@@ -72,7 +72,8 @@ class Dashboard extends StatelessWidget {
             radius: 25,
             backgroundImage: user.photoURL != null
                 ? NetworkImage(user.photoURL!)
-                : const AssetImage("images/default_profile.png") as ImageProvider,
+                : const AssetImage("images/default_profile.png")
+                    as ImageProvider,
           ),
           const SizedBox(width: 16),
           Expanded(

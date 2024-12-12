@@ -4,21 +4,20 @@ import 'package:sirek/admin/dashboard.dart';
 import 'package:sirek/ui/login_page.dart';
 
 class AuthPage extends StatelessWidget {
-const AuthPage({ super.key });
+  const AuthPage({super.key});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot){
-          if(snapshot.hasData){
-            return Dashboard();
-          }else{
-            return const Loginpage();
-          }
-        }
-      ),
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Dashboard();
+            } else {
+              return const Loginpage();
+            }
+          }),
     );
   }
 }

@@ -13,7 +13,7 @@ class EventPage extends StatelessWidget {
     return _eventController.getAllEvents();
   }
 
-  Widget _headerContainer(){
+  Widget _headerContainer() {
     return Container(
       color: const Color(0xFF072554),
       width: double.infinity,
@@ -31,7 +31,11 @@ class EventPage extends StatelessWidget {
     );
   }
 
-  Widget _eventCard(BuildContext context, {required String title, required String description, required String image, required String eventId}) {
+  Widget _eventCard(BuildContext context,
+      {required String title,
+      required String description,
+      required String image,
+      required String eventId}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -75,9 +79,7 @@ class EventPage extends StatelessWidget {
               },
             ),
           ),
-
           const SizedBox(width: 16),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,7 +155,7 @@ class EventPage extends StatelessWidget {
       ),
       body: FutureBuilder<List<EventModel>>(
         future: _loadEvents(),
-        builder: (context, snapshot) { 
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -173,14 +175,14 @@ class EventPage extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _headerContainer(),      
-
+                _headerContainer(),
                 const SizedBox(height: 10),
-
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(), // Agar tidak konflik dengan scroll utama
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Agar tidak konflik dengan scroll utama
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: events.length,
                   itemBuilder: (context, index) {
                     final event = events[index];
@@ -202,4 +204,3 @@ class EventPage extends StatelessWidget {
     );
   }
 }
-

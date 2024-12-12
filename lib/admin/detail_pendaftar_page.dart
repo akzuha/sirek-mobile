@@ -5,169 +5,18 @@ import 'package:sirek/widgets/admin_bottom_nav.dart';
 import 'package:sirek/admin/edit_pendaftar_page.dart';
 
 class DetailPendaftarPage extends StatelessWidget {
-  final String pendaftarId;
-
   const DetailPendaftarPage({super.key, required this.pendaftarId});
 
+  final String pendaftarId;
+
   Future<Map<String, dynamic>> _fetchPendaftarDetails(String id) async {
-    final pendaftarDoc = await FirebaseFirestore.instance.collection('pendaftar').doc(id).get();
+    final pendaftarDoc =
+        await FirebaseFirestore.instance.collection('pendaftar').doc(id).get();
     if (pendaftarDoc.exists) {
       return pendaftarDoc.data()!;
     } else {
       throw Exception("Pendaftar tidak ditemukan");
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF072554),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Image.asset(
-              "images/iconsirek.png", // Path untuk iconsirek.png
-              height: 40, // Tinggi ikon
-            ),
-          ),
-        ],
-        title: null, // Kosongkan judul di AppBar
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _fetchPendaftarDetails(pendaftarId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData) {
-            return const Center(child: Text("Pendaftar tidak ditemukan"));
-          } else {
-            final pendaftarData = snapshot.data!;
-
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header dengan nama pendaftar
-                  Container(
-                    color: const Color(0xFF072554),
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: Text(
-                        pendaftarData['namaPendaftar'] ?? "Pendaftar",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Konten detail
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDetailRow("Nama", pendaftarData['namaPendaftar']),
-                        _buildDetailRow("Email", pendaftarData['emailPendaftar']),
-                        _buildDetailRow(
-                          "Telepon",
-                          pendaftarData['telepon'] != null ? pendaftarData['telepon'].toString() : "-",
-                        ),
-                        _buildDetailRow("Alamat", pendaftarData['alamat']),
-                        _buildDetailRow("Tanggal Lahir", pendaftarData['tglLahir'] != null
-                          ? DateFormat('dd MMM yyyy').format(
-                              (pendaftarData['tglLahir'] as Timestamp).toDate(),
-                            )
-                          : "Tanggal tidak tersedia",),
-                        _buildDetailRow("Jenis Kelamin", pendaftarData['jenisKelamin']),
-                        _buildDetailRow("NIM", pendaftarData['nim']),
-                        _buildDetailRow("Jurusan", pendaftarData['jurusan']),
-                        _buildDetailRow("Fakultas", pendaftarData['fakultas']),
-                        _buildDetailRow("Angkatan", pendaftarData['angkatan']),
-                        _buildDetailRow("Pilihan 1", pendaftarData['pilihanSatu']),
-                        _buildDetailRow("Pilihan 2", pendaftarData['pilihanDua']),
-                        _buildDetailRow("Alasan", pendaftarData['alasan']),
-                        const Divider(height: 32, thickness: 1),
-
-                        // Bagian file upload
-                        _buildFileUploadSection("File CV", "CV-Ackerman.pdf"),
-                        const SizedBox(height: 16),
-                        _buildFileUploadSection("File LoC", "LoC-Ackerman.pdf"),
-                        const Divider(height: 32, thickness: 1),
-
-                        // Tombol Edit dan Hapus
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditPendaftarPage(
-                                        pendaftarId: pendaftarData['id'],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.edit, color: Colors.white),
-                                label: const Text(
-                                  "Edit",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFECC600),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  _showDeleteConfirmation(context);
-                                },
-                                icon: const Icon(Icons.delete, color: Colors.white),
-                                label: const Text(
-                                  "Hapus",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFD83434),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
-      ),
-      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 2),
-    );
   }
 
   // Fungsi untuk membuat baris detail
@@ -247,7 +96,8 @@ class DetailPendaftarPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("TIDAK", style: TextStyle(color: Color(0xFF072554))),
+              child: const Text("TIDAK",
+                  style: TextStyle(color: Color(0xFF072554))),
             ),
             TextButton(
               onPressed: () {
@@ -257,11 +107,176 @@ class DetailPendaftarPage extends StatelessWidget {
                 );
                 Navigator.pop(context);
               },
-              child: const Text("YA", style: TextStyle(color: Color(0xFF072554))),
+              child:
+                  const Text("YA", style: TextStyle(color: Color(0xFF072554))),
             ),
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF072554),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(
+              "images/iconsirek.png", // Path untuk iconsirek.png
+              height: 40, // Tinggi ikon
+            ),
+          ),
+        ],
+        title: null, // Kosongkan judul di AppBar
+      ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _fetchPendaftarDetails(pendaftarId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData) {
+            return const Center(child: Text("Pendaftar tidak ditemukan"));
+          } else {
+            final pendaftarData = snapshot.data!;
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header dengan nama pendaftar
+                  Container(
+                    color: const Color(0xFF072554),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(
+                        pendaftarData['namaPendaftar'] ?? "Pendaftar",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Konten detail
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDetailRow("Nama", pendaftarData['namaPendaftar']),
+                        _buildDetailRow(
+                            "Email", pendaftarData['emailPendaftar']),
+                        _buildDetailRow(
+                          "Telepon",
+                          pendaftarData['telepon'] != null
+                              ? pendaftarData['telepon'].toString()
+                              : "-",
+                        ),
+                        _buildDetailRow("Alamat", pendaftarData['alamat']),
+                        _buildDetailRow(
+                          "Tanggal Lahir",
+                          pendaftarData['tglLahir'] != null
+                              ? DateFormat('dd MMM yyyy').format(
+                                  (pendaftarData['tglLahir'] as Timestamp)
+                                      .toDate(),
+                                )
+                              : "Tanggal tidak tersedia",
+                        ),
+                        _buildDetailRow(
+                            "Jenis Kelamin", pendaftarData['jenisKelamin']),
+                        _buildDetailRow("NIM", pendaftarData['nim']),
+                        _buildDetailRow("Jurusan", pendaftarData['jurusan']),
+                        _buildDetailRow("Fakultas", pendaftarData['fakultas']),
+                        _buildDetailRow("Angkatan", pendaftarData['angkatan']),
+                        _buildDetailRow(
+                            "Pilihan 1", pendaftarData['pilihanSatu']),
+                        _buildDetailRow(
+                            "Pilihan 2", pendaftarData['pilihanDua']),
+                        _buildDetailRow("Alasan", pendaftarData['alasan']),
+                        const Divider(height: 32, thickness: 1),
+
+                        // Bagian file upload
+                        _buildFileUploadSection("File CV", "CV-Ackerman.pdf"),
+                        const SizedBox(height: 16),
+                        _buildFileUploadSection("File LoC", "LoC-Ackerman.pdf"),
+                        const Divider(height: 32, thickness: 1),
+
+                        // Tombol Edit dan Hapus
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditPendaftarPage(
+                                        pendaftarId: pendaftarData['id'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.white),
+                                label: const Text(
+                                  "Edit",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFECC600),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _showDeleteConfirmation(context);
+                                },
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.white),
+                                label: const Text(
+                                  "Hapus",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFD83434),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 2),
     );
   }
 }

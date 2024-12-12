@@ -82,8 +82,37 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
+  Widget _tambahDataEvent() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddEventPage()),
+            );
+          },
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            "Tambah Event",
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF38CC20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // Widget untuk Event Card
-  Widget _eventCard(BuildContext context, {required String eventName, required String eventId}) {
+  Widget _eventCard(BuildContext context,
+      {required String eventName, required String eventId}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -164,8 +193,8 @@ class _EventPageState extends State<EventPage> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Column(
               children: [
-                // Header
                 _headerContainer(),
+                _tambahDataEvent(),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Text("No events found"),
@@ -178,44 +207,17 @@ class _EventPageState extends State<EventPage> {
             return Column(
               children: [
                 _headerContainer(),
-
-                // Tambah Data Button
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AddEventPage()),
-                        );
-                      },
-                      icon: const Icon(Icons.add, color: Colors.white),
-                      label: const Text(
-                        "Tambah Event",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF38CC20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Event Cards
+                _tambahDataEvent(),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     itemCount: events.length,
                     itemBuilder: (context, index) {
                       final event = events[index];
                       return _eventCard(
                         context,
-                        eventName: event.namaEvent, 
+                        eventName: event.namaEvent,
                         eventId: event.id,
                       );
                     },

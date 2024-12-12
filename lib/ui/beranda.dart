@@ -5,6 +5,70 @@ import '../landing.dart';
 class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
 
+  // Widget untuk Filosofi Logo
+  Widget _logoDescription(
+    BuildContext context,
+    String title,
+    String description,
+    String imagePath,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.blue[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ListTile(
+          leading: Image.asset(imagePath, width: 40),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          subtitle: Text(
+            description,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Widget untuk Kartu Booklet
+  Widget _bookletCard(BuildContext context, String title, String imagePath) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Klik pada booklet: $title")),
+        );
+      },
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              imagePath,
+              height: 100,
+              width: 80,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,70 +245,6 @@ class BerandaPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
-    );
-  }
-
-  // Widget untuk Filosofi Logo
-  Widget _logoDescription(
-    BuildContext context,
-    String title,
-    String description,
-    String imagePath,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.blue[50],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ListTile(
-          leading: Image.asset(imagePath, width: 40),
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-          subtitle: Text(
-            description,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Widget untuk Kartu Booklet
-  Widget _bookletCard(BuildContext context, String title, String imagePath) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Klik pada booklet: $title")),
-        );
-      },
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              height: 100,
-              width: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -14,15 +14,14 @@ class AddEventPage extends StatefulWidget {
 }
 
 class _AddEventPageState extends State<AddEventPage> {
+  File? _booklet;
+  DateTime? _closeRec;
+  String _deskripsi = '';
   final EventController _eventController = EventController();
   final _formKey = GlobalKey<FormState>();
-
-  String _namaEvent = '';
-  String _deskripsi = '';
-  DateTime? _openRec;
-  DateTime? _closeRec;
   File? _gambar;
-  File? _booklet;
+  String _namaEvent = '';
+  DateTime? _openRec;
 
   // Fungsi untuk memilih file gambar atau booklet
   Future<void> _pickFile(bool isGambar) async {
@@ -80,7 +79,8 @@ class _AddEventPageState extends State<AddEventPage> {
         );
 
         // Tambahkan ke Firestore
-        await _eventController.createEventWithFiles(newEvent, gambarUrl as File?, bookletUrl as File?);
+        await _eventController.createEventWithFiles(
+            newEvent, gambarUrl as File?, bookletUrl as File?);
 
         // Tampilkan notifikasi berhasil
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +125,8 @@ class _AddEventPageState extends State<AddEventPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Input Nama Event
-              const Text("Nama Event", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Nama Event",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextFormField(
                 decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -140,15 +141,18 @@ class _AddEventPageState extends State<AddEventPage> {
               const SizedBox(height: 16),
 
               // Upload Gambar
-              const Text("Gambar", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Gambar",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: [
                   ElevatedButton.icon(
                     onPressed: () => _pickFile(true),
                     icon: const Icon(Icons.upload, color: Colors.white),
-                    label: const Text("Choose File", style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF072554)),
+                    label: const Text("Choose File",
+                        style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
                   Text(_gambar != null ? "File dipilih" : "No File Chosen"),
@@ -157,15 +161,18 @@ class _AddEventPageState extends State<AddEventPage> {
               const SizedBox(height: 16),
 
               // Upload Booklet
-              const Text("Upload File Booklet", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Upload File Booklet",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: [
                   ElevatedButton.icon(
                     onPressed: () => _pickFile(false),
                     icon: const Icon(Icons.upload, color: Colors.white),
-                    label: const Text("Choose File", style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF072554)),
+                    label: const Text("Choose File",
+                        style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
                   Text(_booklet != null ? "File dipilih" : "No File Chosen"),
@@ -174,12 +181,15 @@ class _AddEventPageState extends State<AddEventPage> {
               const SizedBox(height: 16),
 
               // Input Open Recruitment
-              const Text("Open Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Open Recruitment",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextField(
                 readOnly: true,
                 controller: TextEditingController(
-                  text: _openRec != null ? DateFormat('dd/MM/yyyy').format(_openRec!) : '',
+                  text: _openRec != null
+                      ? DateFormat('dd/MM/yyyy').format(_openRec!)
+                      : '',
                 ),
                 decoration: InputDecoration(
                   suffixIcon: IconButton(
@@ -192,12 +202,15 @@ class _AddEventPageState extends State<AddEventPage> {
               const SizedBox(height: 16),
 
               // Input Close Recruitment
-              const Text("Close Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Close Recruitment",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextField(
                 readOnly: true,
                 controller: TextEditingController(
-                  text: _closeRec != null ? DateFormat('dd/MM/yyyy').format(_closeRec!) : '',
+                  text: _closeRec != null
+                      ? DateFormat('dd/MM/yyyy').format(_closeRec!)
+                      : '',
                 ),
                 decoration: InputDecoration(
                   suffixIcon: IconButton(
@@ -210,7 +223,8 @@ class _AddEventPageState extends State<AddEventPage> {
               const SizedBox(height: 16),
 
               // Input Deskripsi
-              const Text("Deskripsi", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Deskripsi",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextFormField(
                 maxLines: 5,
@@ -231,10 +245,13 @@ class _AddEventPageState extends State<AddEventPage> {
                   onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6A220),
-                    padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 90, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text("Tambah Event", style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: const Text("Tambah Event",
+                      style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
             ],

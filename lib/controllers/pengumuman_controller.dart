@@ -4,8 +4,8 @@ import 'package:sirek/models/event_model.dart';
 import 'package:sirek/models/pengumuman_model.dart';
 
 class PengumumanController {
-  final PengumumanRepository _repository = PengumumanRepository();
   final EventRepository _eventRepository = EventRepository();
+  final PengumumanRepository _repository = PengumumanRepository();
 
   Future<List<PengumumanModel>> getAllPengumuman() async {
     return await _repository.fetchAllPengumuman();
@@ -16,8 +16,9 @@ class PengumumanController {
     return await _eventRepository.fetchAllEvents();
   }
 
-  Future<void> createPengumuman(PengumumanModel pengumuman, File? pengumumanFile) async {
-    await _repository.createPengumumanWithFiles(pengumuman, pengumumanFile );
+  Future<void> createPengumuman(
+      PengumumanModel pengumuman, File? pengumumanFile) async {
+    await _repository.createPengumumanWithFiles(pengumuman, pengumumanFile);
   }
 
   Future<void> updatePengumuman(String id, PengumumanModel pengumuman) async {

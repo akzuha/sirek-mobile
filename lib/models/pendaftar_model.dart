@@ -1,24 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PendaftarModel {
-  String id;
-  String namaEvent;
-  String namaPendaftar;
-  String emailPendaftar;
-  int telepon;
-  String alamat;
-  DateTime tglLahir;
-  String jenisKelamin;
-  String nim;
-  String jurusan;
-  String fakultas;
-  int angkatan;
-  String pilihanSatu;
-  String pilihanDua;
-  String alasan;
-  String fileCV;
-  String fileLOC;
-
   PendaftarModel({
     required this.id,
     required this.namaEvent,
@@ -61,7 +43,25 @@ class PendaftarModel {
       fileLOC: data['fileLOC'],
     );
   }
-  
+
+  String alamat;
+  String alasan;
+  int angkatan;
+  String emailPendaftar;
+  String fakultas;
+  String fileCV;
+  String fileLOC;
+  String id;
+  String jenisKelamin;
+  String jurusan;
+  String namaEvent;
+  String namaPendaftar;
+  String nim;
+  String pilihanDua;
+  String pilihanSatu;
+  int telepon;
+  DateTime tglLahir;
+
   // Convert EventModel to Map (useful for Firestore operations)
   Map<String, dynamic> toMap() {
     return {
@@ -92,7 +92,9 @@ class PendaftarRepository {
   // Fetch all events
   Future<List<PendaftarModel>> fetchAllPendaftars() async {
     QuerySnapshot snapshot = await _firestore.collection('pendaftar').get();
-    return snapshot.docs.map((doc) => PendaftarModel.fromDocument(doc)).toList();
+    return snapshot.docs
+        .map((doc) => PendaftarModel.fromDocument(doc))
+        .toList();
   }
 
   // Create a new event

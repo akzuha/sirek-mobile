@@ -3,17 +3,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
 class EditPengumumanPage extends StatefulWidget {
-  final String pengumumanName;
-
   const EditPengumumanPage({super.key, required this.pengumumanName});
+
+  final String pengumumanName;
 
   @override
   State<EditPengumumanPage> createState() => _EditPengumumanPageState();
 }
 
 class _EditPengumumanPageState extends State<EditPengumumanPage> {
-  DateTime? selectedDate = DateTime.now();
   String? fileName;
+  DateTime? selectedDate = DateTime.now();
+
   final TextEditingController _keteranganController = TextEditingController(
       text: "Silahkan unduh pengumuman melalui tombol dibawah ini.");
 

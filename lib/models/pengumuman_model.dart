@@ -3,12 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class PengumumanModel {
-  String id;
-  String namaEvent;
-  String filePengumuman;
-  DateTime tanggalPengumuman;
-  String keterangan;
-
   PengumumanModel({
     required this.id,
     required this.namaEvent,
@@ -27,6 +21,12 @@ class PengumumanModel {
       keterangan: data['keterangan'] ?? '',
     );
   }
+
+  String filePengumuman;
+  String id;
+  String keterangan;
+  String namaEvent;
+  DateTime tanggalPengumuman;
 
   // Convert EventModel to Map (useful for Firestore operations)
   Map<String, dynamic> toMap() {
@@ -63,8 +63,8 @@ class PengumumanRepository {
     }
   }
 
-
-  Future<void> createPengumumanWithFiles(PengumumanModel pengumuman, File? pengumumanFile) async {
+  Future<void> createPengumumanWithFiles(
+      PengumumanModel pengumuman, File? pengumumanFile) async {
     try {
       String? filePengumuman;
 
@@ -87,7 +87,10 @@ class PengumumanRepository {
   }
 
   Future<void> updatePengumuman(String id, PengumumanModel pengumuman) async {
-    await _firestore.collection('pengumuman').doc(id).update(pengumuman.toMap());
+    await _firestore
+        .collection('pengumuman')
+        .doc(id)
+        .update(pengumuman.toMap());
   }
 
   Future<void> deletePengumuman(String id) async {

@@ -3,14 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventModel {
-  final String id;
-  final String namaEvent;
-  final String gambar;
-  final String booklet;
-  final DateTime openRec;
-  final DateTime closeRec;
-  final String deskripsi;
-
   EventModel({
     required this.id,
     required this.namaEvent,
@@ -35,6 +27,14 @@ class EventModel {
     );
   }
 
+  final String booklet;
+  final DateTime closeRec;
+  final String deskripsi;
+  final String gambar;
+  final String id;
+  final String namaEvent;
+  final DateTime openRec;
+
   // Convert EventModel to Map (useful for Firestore operations)
   Map<String, dynamic> toMap() {
     return {
@@ -47,7 +47,6 @@ class EventModel {
     };
   }
 }
-
 
 class EventRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -84,7 +83,8 @@ class EventRepository {
   }
 
   // Create a new event
-  Future<void> createEventWithFiles(EventModel event, File? imageFile, File? bookletFile) async {
+  Future<void> createEventWithFiles(
+      EventModel event, File? imageFile, File? bookletFile) async {
     try {
       String? imageUrl;
       String? bookletUrl;
@@ -114,7 +114,8 @@ class EventRepository {
   }
 
   // Update an event
-  Future<void> updateEventWithFiles(String id, EventModel event, File? imageFile, File? bookletFile) async {
+  Future<void> updateEventWithFiles(
+      String id, EventModel event, File? imageFile, File? bookletFile) async {
     try {
       String? newImageUrl;
       String? newBookletUrl;

@@ -5,21 +5,89 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
 class EditEventPage extends StatefulWidget {
-  final String eventId;
-
   const EditEventPage({super.key, required this.eventId});
+
+  final String eventId;
 
   @override
   State<EditEventPage> createState() => _EditEventPageState();
 }
 
 class _EditEventPageState extends State<EditEventPage> {
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController deskripsiController = TextEditingController();
-  DateTime? openDate;
-  DateTime? closeDate;
-  String? imageFileName;
   String? bookletFileName;
+  DateTime? closeDate;
+  final TextEditingController deskripsiController = TextEditingController();
+  String? imageFileName;
+  final TextEditingController namaController = TextEditingController();
+  DateTime? openDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEventData();
+  }
+
+  // Fungsi untuk memilih file
+  Future<void> pickFile(bool isImage) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: isImage ? FileType.image : FileType.custom,
+      allowedExtensions: isImage ? ['png', 'jpg'] : ['pdf'],
+    );
+
+    if (result != null) {
+      final filePath = result.files.single.path!;
+      final fileName = result.files.single.name;
+
+      try {
+        final downloadUrl = await _uploadFile(
+          filePath,
+          isImage ? 'event/images/$fileName' : 'event/booklets/$fileName',
+        );
+
+        setState(() {
+          if (isImage) {
+            imageFileName = downloadUrl;
+          } else {
+            bookletFileName = downloadUrl;
+          }
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error uploading file: $e")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isImage
+                ? "Hanya file PNG atau JPG yang diizinkan!"
+                : "Hanya file PDF yang diizinkan!",
+          ),
+        ),
+      );
+    }
+  }
+
+  // Fungsi untuk memilih tanggal
+  Future<void> pickDate(BuildContext context, bool isOpenDate) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        if (isOpenDate) {
+          openDate = pickedDate;
+        } else {
+          closeDate = pickedDate;
+        }
+      });
+    }
+  }
 
   // Ambil data event dari Firestore
   Future<void> _fetchEventData() async {
@@ -51,50 +119,6 @@ class _EditEventPageState extends State<EditEventPage> {
     }
   }
 
-  // Fungsi untuk memilih file
-  Future<void> pickFile(bool isImage) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: isImage ? FileType.image : FileType.custom,
-      allowedExtensions: isImage ? ['png', 'jpg'] : ['pdf'],
-    );
-
-    if (result != null) {
-      final filePath = result.files.single.path!;
-      final fileName = result.files.single.name;
-
-      try {
-        final downloadUrl = await _uploadFile(
-          filePath,
-          isImage
-              ? 'event/images/$fileName'
-              : 'event/booklets/$fileName',
-        );
-
-        setState(() {
-          if (isImage) {
-            imageFileName = downloadUrl;
-          } else {
-            bookletFileName = downloadUrl;
-          }
-        });
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error uploading file: $e")),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isImage
-                ? "Hanya file PNG atau JPG yang diizinkan!"
-                : "Hanya file PDF yang diizinkan!",
-          ),
-        ),
-      );
-    }
-  }
-
   // Fungsi untuk mengunggah file ke Firebase Storage
   Future<String> _uploadFile(String filePath, String storagePath) async {
     final file = File(filePath);
@@ -103,30 +127,13 @@ class _EditEventPageState extends State<EditEventPage> {
     return await uploadTask.ref.getDownloadURL();
   }
 
-  // Fungsi untuk memilih tanggal
-  Future<void> pickDate(BuildContext context, bool isOpenDate) async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        if (isOpenDate) {
-          openDate = pickedDate;
-        } else {
-          closeDate = pickedDate;
-        }
-      });
-    }
-  }
-
   // Fungsi untuk memperbarui data event
   Future<void> _updateEventData() async {
     try {
-      await FirebaseFirestore.instance.collection('event').doc(widget.eventId).update({
+      await FirebaseFirestore.instance
+          .collection('event')
+          .doc(widget.eventId)
+          .update({
         'nama': namaController.text,
         'deskripsi': deskripsiController.text,
         'openDate': openDate?.toIso8601String(),
@@ -145,12 +152,6 @@ class _EditEventPageState extends State<EditEventPage> {
         SnackBar(content: Text("Error updating event: $e")),
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchEventData();
   }
 
   @override
@@ -174,7 +175,8 @@ class _EditEventPageState extends State<EditEventPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Nama Event", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Nama Event",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               controller: namaController,
@@ -183,7 +185,8 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Deskripsi", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Deskripsi",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               controller: deskripsiController,
@@ -193,7 +196,8 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Open Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Open Recruitment",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               readOnly: true,
@@ -211,7 +215,8 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Close Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Close Recruitment",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               readOnly: true,
@@ -229,7 +234,8 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Upload Gambar", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Upload Gambar",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -242,7 +248,8 @@ class _EditEventPageState extends State<EditEventPage> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text("Upload File Booklet", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Upload File Booklet",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -260,7 +267,8 @@ class _EditEventPageState extends State<EditEventPage> {
                 onPressed: _updateEventData,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF6A220),
-                  padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:sirek/landing.dart';
 import 'package:sirek/ui/login_page.dart';
 import 'package:sirek/admin/dashboard.dart';
@@ -13,9 +14,10 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
-runApp(const MyApp());
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await initializeDateFormatting('id_ID', null);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
 
         // Halaman admin
         '/dashboard': (context) => Dashboard(),
-        '/event': (context) => EventPage(),
+        '/event': (context) => const EventPage(),
         '/pendaftar': (context) => PendaftarPage(),
         '/pengumuman': (context) => const PengumumanPage(),
         '/profile': (context) => ProfilePage(),

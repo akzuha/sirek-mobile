@@ -3,8 +3,9 @@ import 'package:sirek/auth_page.dart';
 import 'package:sirek/ui/beranda.dart';
 
 class Landing extends StatelessWidget {
-  final String title;
   const Landing({super.key, required this.title});
+
+  final String title;
 
   void _showDialog(BuildContext context, String pesan, Widget alamat) {
     showDialog(
@@ -56,7 +57,8 @@ class Landing extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
               ),
               child: const Text(
                 'Kembali',
@@ -75,7 +77,8 @@ class Landing extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
               ),
               child: const Text(
                 'Lanjut',

@@ -4,96 +4,35 @@ import 'package:file_picker/file_picker.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
 class EditPendaftarPage extends StatefulWidget {
-  final String pendaftarId;
-
   const EditPendaftarPage({super.key, required this.pendaftarId});
+
+  final String pendaftarId;
 
   @override
   State<EditPendaftarPage> createState() => _EditPendaftarPageState();
 }
 
 class _EditPendaftarPageState extends State<EditPendaftarPage> {
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController teleponController = TextEditingController();
   final TextEditingController alamatController = TextEditingController();
-  final TextEditingController nimController = TextEditingController();
-  final TextEditingController angkatanController = TextEditingController();
   final TextEditingController alasanController = TextEditingController();
-  TextEditingController jurusanController = TextEditingController();
-  TextEditingController fakultasController = TextEditingController();
-
+  final TextEditingController angkatanController = TextEditingController();
   String? cvFileName;
-  String? locFileName;
-  DateTime? selectedDate;
+  final TextEditingController emailController = TextEditingController();
+  TextEditingController fakultasController = TextEditingController();
   String? jenisKelamin;
+  TextEditingController jurusanController = TextEditingController();
+  String? locFileName;
+  final TextEditingController namaController = TextEditingController();
+  final TextEditingController nimController = TextEditingController();
   String? pilihan1;
   String? pilihan2;
+  DateTime? selectedDate;
+  final TextEditingController teleponController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchPendaftarDetails();
-  }
-
-  Future<void> _fetchPendaftarDetails() async {
-  final pendaftarDoc = await FirebaseFirestore.instance
-      .collection('pendaftar')
-      .doc(widget.pendaftarId)
-      .get();
-  if (pendaftarDoc.exists) {
-    final data = pendaftarDoc.data()!;
-    setState(() {
-      namaController.text = data['namaPendaftar'] ?? '';
-      emailController.text = data['emailPendaftar'] ?? '';
-      teleponController.text = data['telepon'] ?? '';
-      alamatController.text = data['alamat'] ?? '';
-      nimController.text = data['nim'] ?? '';
-      angkatanController.text = data['angkatan'] ?? '';
-      alasanController.text = data['alasan'] ?? '';
-      jenisKelamin = data['jenisKelamin'] ?? '';
-      jurusanController = data['jurusan'] ?? '';
-      fakultasController = data['fakultas'] ?? '';
-      pilihan1 = data['pilihanSatu'] ?? '';
-      pilihan2 = data['pilihanDua'] ?? '';
-      selectedDate = data['tglLahir'] != null
-          ? DateTime.parse(data['tglLahir'])
-          : null;
-    });
-  }
-}
-
-
-  Future<void> _updatePendaftar() async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('pendaftar')
-          .doc(widget.pendaftarId)
-          .update({
-        'namaPendaftar': namaController.text,
-        'emailPendaftar': emailController.text,
-        'telepon': teleponController.text,
-        'alamat': alamatController.text,
-        'nim': nimController.text,
-        'angkatan': angkatanController.text,
-        'alasan': alasanController.text,
-        'jenisKelamin': jenisKelamin,
-        'jurusan': jurusanController.text,
-        'fakultas': fakultasController.text,
-        'pilihanSatu': pilihan1,
-        'pilihanDua': pilihan2,
-        'tglLahir': selectedDate?.toIso8601String(),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Data berhasil diperbarui!")),
-      );
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
-      );
-    }
   }
 
   // Fungsi untuk memilih file
@@ -138,7 +77,66 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
     }
   }
 
-  Widget _buildTextField(String label, {required TextEditingController controller}) {
+  Future<void> _fetchPendaftarDetails() async {
+    final pendaftarDoc = await FirebaseFirestore.instance
+        .collection('pendaftar')
+        .doc(widget.pendaftarId)
+        .get();
+    if (pendaftarDoc.exists) {
+      final data = pendaftarDoc.data()!;
+      setState(() {
+        namaController.text = data['namaPendaftar'] ?? '';
+        emailController.text = data['emailPendaftar'] ?? '';
+        teleponController.text = data['telepon'] ?? '';
+        alamatController.text = data['alamat'] ?? '';
+        nimController.text = data['nim'] ?? '';
+        angkatanController.text = data['angkatan'] ?? '';
+        alasanController.text = data['alasan'] ?? '';
+        jenisKelamin = data['jenisKelamin'] ?? '';
+        jurusanController = data['jurusan'] ?? '';
+        fakultasController = data['fakultas'] ?? '';
+        pilihan1 = data['pilihanSatu'] ?? '';
+        pilihan2 = data['pilihanDua'] ?? '';
+        selectedDate =
+            data['tglLahir'] != null ? DateTime.parse(data['tglLahir']) : null;
+      });
+    }
+  }
+
+  Future<void> _updatePendaftar() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('pendaftar')
+          .doc(widget.pendaftarId)
+          .update({
+        'namaPendaftar': namaController.text,
+        'emailPendaftar': emailController.text,
+        'telepon': teleponController.text,
+        'alamat': alamatController.text,
+        'nim': nimController.text,
+        'angkatan': angkatanController.text,
+        'alasan': alasanController.text,
+        'jenisKelamin': jenisKelamin,
+        'jurusan': jurusanController.text,
+        'fakultas': fakultasController.text,
+        'pilihanSatu': pilihan1,
+        'pilihanDua': pilihan2,
+        'tglLahir': selectedDate?.toIso8601String(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Data berhasil diperbarui!")),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+  }
+
+  Widget _buildTextField(String label,
+      {required TextEditingController controller}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -197,7 +195,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
           children: [
             _buildTextField("Nama", controller: namaController),
             const SizedBox(height: 16),
-            _buildTextField("Email", controller: namaController ),
+            _buildTextField("Email", controller: namaController),
             const SizedBox(height: 16),
             _buildTextField("Telepon", controller: namaController),
             const SizedBox(height: 16),
@@ -236,13 +234,13 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
             const SizedBox(height: 16),
             _buildTextField("Fakultas", controller: fakultasController),
             const SizedBox(height: 16),
-            _buildTextField("Angkatan", controller: angkatanController ),
+            _buildTextField("Angkatan", controller: angkatanController),
             const SizedBox(height: 16),
             _buildDropdownField("Pilihan 1", ["Bendahara", "Sekretaris"]),
             const SizedBox(height: 16),
             _buildDropdownField("Pilihan 2", ["Ketua", "Sekretaris"]),
             const SizedBox(height: 16),
-            _buildTextField("Alasan", controller: alasanController ),
+            _buildTextField("Alasan", controller: alasanController),
             const SizedBox(height: 16),
 
             // File CV
@@ -288,14 +286,15 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                 const SizedBox(width: 10),
                 Text(locFileName ?? "No File Chosen"),
               ],
-            ),const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
                 onPressed: _updatePendaftar,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF6A220),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 90, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
