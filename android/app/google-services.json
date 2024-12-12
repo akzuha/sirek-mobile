@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:941566958830:android:fa76464d73ab4bb8ac27ff",
+        "mobilesdk_app_id": "1:941566958830:android:22a511fe6fada6b5ac27ff",
         "android_client_info": {
-          "package_name": "com.sirekmobile.app"
+          "package_name": "com.example.sirek"
         }
       },
       "oauth_client": [],
