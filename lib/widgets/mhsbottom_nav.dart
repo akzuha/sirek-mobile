@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sirek/mhs/beranda.dart';
-import 'package:sirek/mhs/event_page.dart';
-import 'package:sirek/mhs/pengumuman_page.dart';
+import 'package:sirek/ui/beranda.dart';
+import 'package:sirek/ui/event_page.dart';
+import 'package:sirek/ui/pengumuman_page.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex; // Indeks halaman aktif
@@ -20,7 +20,7 @@ class CustomBottomNavBar extends StatelessWidget {
       case 1:
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const EventPage()),
+          MaterialPageRoute(builder: (context) => EventPage()),
           (route) => false,
         );
         break;

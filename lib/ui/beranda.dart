@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/mhsbottom_nav.dart';
-import '../landing.dart'; // Pastikan Anda mengimpor Landing
+import '../landing.dart';
 
 class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
@@ -99,7 +99,7 @@ class BerandaPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Filosofi Logo Section
+            // Filosofi Logo
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -171,7 +171,7 @@ class BerandaPage extends StatelessWidget {
                 const SizedBox(width: 10),
                 _bookletCard(
                   context,
-                  "Panggil Sedulur",
+                  "Panggih Sedulur",
                   "images/booklet_panggil_sedulur.png",
                 ),
               ],

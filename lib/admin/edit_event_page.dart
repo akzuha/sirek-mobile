@@ -1,37 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:sirek/widgets/admin_bottom_nav.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class EditEventPage extends StatefulWidget {
-  final String eventName;
+  final String eventId;
 
-  const EditEventPage({super.key, required this.eventName});
+  const EditEventPage({super.key, required this.eventId});
 
   @override
   State<EditEventPage> createState() => _EditEventPageState();
 }
 
 class _EditEventPageState extends State<EditEventPage> {
+  final TextEditingController namaController = TextEditingController();
+  final TextEditingController deskripsiController = TextEditingController();
   DateTime? openDate;
   DateTime? closeDate;
   String? imageFileName;
   String? bookletFileName;
 
+  // Ambil data event dari Firestore
+  Future<void> _fetchEventData() async {
+    try {
+      final eventDoc = await FirebaseFirestore.instance
+          .collection('event')
+          .doc(widget.eventId)
+          .get();
+
+      if (eventDoc.exists) {
+        final data = eventDoc.data()!;
+        setState(() {
+          namaController.text = data['nama'] ?? '';
+          deskripsiController.text = data['deskripsi'] ?? '';
+          openDate = data['openDate'] != null
+              ? DateTime.parse(data['openDate'])
+              : null;
+          closeDate = data['closeDate'] != null
+              ? DateTime.parse(data['closeDate'])
+              : null;
+          imageFileName = data['imageFileName'] ?? '';
+          bookletFileName = data['bookletFileName'] ?? '';
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading data: $e")),
+      );
+    }
+  }
+
   // Fungsi untuk memilih file
   Future<void> pickFile(bool isImage) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: isImage ? FileType.custom : FileType.custom,
-      allowedExtensions: isImage ? ['png', 'jpg'] : ['pdf'], // Batasan format
+      type: isImage ? FileType.image : FileType.custom,
+      allowedExtensions: isImage ? ['png', 'jpg'] : ['pdf'],
     );
 
     if (result != null) {
-      setState(() {
-        if (isImage) {
-          imageFileName = result.files.single.name;
-        } else {
-          bookletFileName = result.files.single.name;
-        }
-      });
+      final filePath = result.files.single.path!;
+      final fileName = result.files.single.name;
+
+      try {
+        final downloadUrl = await _uploadFile(
+          filePath,
+          isImage
+              ? 'event/images/$fileName'
+              : 'event/booklets/$fileName',
+        );
+
+        setState(() {
+          if (isImage) {
+            imageFileName = downloadUrl;
+          } else {
+            bookletFileName = downloadUrl;
+          }
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error uploading file: $e")),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -39,11 +89,18 @@ class _EditEventPageState extends State<EditEventPage> {
             isImage
                 ? "Hanya file PNG atau JPG yang diizinkan!"
                 : "Hanya file PDF yang diizinkan!",
-            style: const TextStyle(color: Colors.red),
           ),
         ),
       );
     }
+  }
+
+  // Fungsi untuk mengunggah file ke Firebase Storage
+  Future<String> _uploadFile(String filePath, String storagePath) async {
+    final file = File(filePath);
+    final ref = FirebaseStorage.instance.ref().child(storagePath);
+    final uploadTask = await ref.putFile(file);
+    return await uploadTask.ref.getDownloadURL();
   }
 
   // Fungsi untuk memilih tanggal
@@ -66,11 +123,40 @@ class _EditEventPageState extends State<EditEventPage> {
     }
   }
 
+  // Fungsi untuk memperbarui data event
+  Future<void> _updateEventData() async {
+    try {
+      await FirebaseFirestore.instance.collection('event').doc(widget.eventId).update({
+        'nama': namaController.text,
+        'deskripsi': deskripsiController.text,
+        'openDate': openDate?.toIso8601String(),
+        'closeDate': closeDate?.toIso8601String(),
+        'imageFileName': imageFileName,
+        'bookletFileName': bookletFileName,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Event berhasil diperbarui!")),
+      );
+
+      Navigator.pop(context); // Kembali ke halaman sebelumnya
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error updating event: $e")),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEventData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
         backgroundColor: const Color(0xFF072554),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -80,10 +166,7 @@ class _EditEventPageState extends State<EditEventPage> {
         ),
         title: const Text(
           "Edit Event",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -91,59 +174,26 @@ class _EditEventPageState extends State<EditEventPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Nama Event",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Nama Event", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
-              controller: TextEditingController(text: widget.eventName),
+              controller: namaController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Gambar", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Deskripsi", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => pickFile(true),
-                  icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text(
-                    "Choose File",
-                    style: TextStyle(color: Colors.white), // Warna putih
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF072554),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(imageFileName ?? "No File Chosen"),
-              ],
+            TextField(
+              controller: deskripsiController,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 16),
-            const Text("Upload File Booklet",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => pickFile(false),
-                  icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text(
-                    "Choose File",
-                    style: TextStyle(color: Colors.white), // Warna putih
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF072554),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(bookletFileName ?? "No File Chosen"),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text("Open Recruitment",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Open Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               readOnly: true,
@@ -161,8 +211,7 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Close Recruitment",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Close Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
               readOnly: true,
@@ -180,59 +229,38 @@ class _EditEventPageState extends State<EditEventPage> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text("Deskripsi",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Upload Gambar", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            const TextField(
-              maxLines: 5,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-              ),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => pickFile(true),
+                  child: const Text("Pilih File"),
+                ),
+                const SizedBox(width: 10),
+                Text(imageFileName ?? "No File Chosen"),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text("Upload File Booklet", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => pickFile(false),
+                  child: const Text("Pilih File"),
+                ),
+                const SizedBox(width: 10),
+                Text(bookletFileName ?? "No File Chosen"),
+              ],
             ),
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      title: const Text(
-                        "Notification",
-                        style: TextStyle(color: Colors.green),
-                      ),
-                      content: const Text(
-                        "Event berhasil diedit!",
-                        textAlign: TextAlign.center,
-                      ),
-                      actions: [
-                        Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF38CC20),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Selesai"),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                onPressed: _updateEventData,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF6A220),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -246,8 +274,6 @@ class _EditEventPageState extends State<EditEventPage> {
           ],
         ),
       ),
-      bottomNavigationBar:
-          const AdminBottomNavBar(currentIndex: 1), // Navbar bawah
     );
   }
 }

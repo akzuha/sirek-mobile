@@ -1,106 +1,60 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sirek/admin/profile_page.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
-import 'package:sirek/admin/profile_page.dart'; // Import halaman Profile
 
 class Dashboard extends StatelessWidget {
-  const Dashboard({super.key});
+  Dashboard({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFF072554),
-        automaticallyImplyLeading: false, // Hilangkan tanda panah hitam
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Image.asset(
-              "images/iconsirek.png", // Ikon di sebelah kanan
-              height: 40,
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Dashboard
-            Container(
-              color: const Color(0xFF072554),
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: const Center(
-                child: Text(
-                  "DASHBOARD",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+  final user = FirebaseAuth.instance.currentUser!;
 
-            // ListView dengan Profil dan Data
-            ListView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                // Profil Section
-                _profileCard(
-                  context,
-                  name: "John Doe",
-                  email: "johndoe@bem-unsoed.ac.id",
-                ),
-                const SizedBox(height: 20),
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-                // Data Cards
-                _dataCard(
-                  context,
-                  value: "10",
-                  title: "Jumlah Event",
-                  description:
-                      "Dari data yang ada, jumlah event yang telah dibuat oleh Admin.",
-                ),
-                _dataCard(
-                  context,
-                  value: "50",
-                  title: "Jumlah Pendaftar",
-                  description:
-                      "Dari data yang ada, jumlah pendaftar yang telah terdaftar.",
-                ),
-                _dataCard(
-                  context,
-                  value: "5",
-                  title: "Jumlah Pengumuman",
-                  description:
-                      "Dari data yang ada, jumlah pengumuman yang telah dibuat.",
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 0), // Navbar di bawah
+  Future<int> _getCollectionCount(String collectionName) async {
+    QuerySnapshot snapshot = await _firestore.collection(collectionName).get();
+    return snapshot.docs.length;
+  }
+
+  Widget _buildDataCard(
+    BuildContext context, {
+    required String collectionName,
+    required String title,
+    required String description,
+  }) {
+    return FutureBuilder<int>(
+      future: _getCollectionCount(collectionName),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else {
+          return _dataCard(
+            context,
+            value: "${snapshot.data}",
+            title: title,
+            description: description,
+          );
+        }
+      },
     );
   }
 
-  // Widget untuk kartu profil
   Widget _profileCard(
     BuildContext context, {
     required String name,
     required String email,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10), // Jarak vertikal
+      margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         gradient: const LinearGradient(
-          colors: [Color(0xFF072554), Color(0xFF0B3B91)], // Gradasi biru
+          colors: [Color(0xFF072554), Color(0xFF0B3B91)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -108,21 +62,19 @@ class Dashboard extends StatelessWidget {
           BoxShadow(
             color: Colors.grey.withOpacity(0.4),
             blurRadius: 10,
-            offset: const Offset(0, 5), // Bayangan lebih tajam
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Row(
         children: [
-          // Ikon Profil
-          const Icon(
-            Icons.account_circle,
-            size: 50,
-            color: Colors.white, // Warna putih untuk ikon profil
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: user.photoURL != null
+                ? NetworkImage(user.photoURL!)
+                : const AssetImage("images/default_profile.png") as ImageProvider,
           ),
           const SizedBox(width: 16),
-
-          // Informasi Profil
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +82,7 @@ class Dashboard extends StatelessWidget {
                 Text(
                   name,
                   style: const TextStyle(
-                    fontSize: 20, // Ukuran lebih besar
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -146,8 +98,6 @@ class Dashboard extends StatelessWidget {
               ],
             ),
           ),
-
-          // Ikon Edit
           IconButton(
             icon: const Icon(
               Icons.edit,
@@ -155,10 +105,11 @@ class Dashboard extends StatelessWidget {
               size: 24,
             ),
             onPressed: () {
-              // Navigasi ke halaman ProfilePage
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(),
+                ),
               );
             },
           ),
@@ -167,7 +118,6 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // Widget untuk kartu data
   Widget _dataCard(
     BuildContext context, {
     required String value,
@@ -190,7 +140,6 @@ class Dashboard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Angka Besar
           Container(
             width: 60,
             height: 60,
@@ -209,8 +158,6 @@ class Dashboard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-
-          // Informasi Data
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,6 +183,83 @@ class Dashboard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color(0xFF072554),
+        automaticallyImplyLeading: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(
+              "images/iconsirek.png",
+              height: 40,
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              color: const Color(0xFF072554),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: const Center(
+                child: Text(
+                  "DASHBOARD",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                _profileCard(
+                  context,
+                  name: user.displayName ?? "Admin User",
+                  email: user.email ?? "No Email Available",
+                ),
+                const SizedBox(height: 20),
+                _buildDataCard(
+                  context,
+                  collectionName: "event",
+                  title: "Jumlah Event",
+                  description:
+                      "Dari data yang ada, jumlah event yang telah dibuat.",
+                ),
+                _buildDataCard(
+                  context,
+                  collectionName: "pendaftar",
+                  title: "Jumlah Pendaftar",
+                  description:
+                      "Dari data yang ada, jumlah pendaftar yang telah terdaftar.",
+                ),
+                _buildDataCard(
+                  context,
+                  collectionName: "pengumuman",
+                  title: "Jumlah Pengumuman",
+                  description:
+                      "Dari data yang ada, jumlah pengumuman yang telah dibuat.",
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 0),
     );
   }
 }

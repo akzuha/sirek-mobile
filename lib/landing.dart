@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sirek/auth/auth_gate.dart';
-import 'package:sirek/mhs/beranda.dart';
+import 'package:sirek/auth_page.dart';
+import 'package:sirek/ui/beranda.dart';
 
 class Landing extends StatelessWidget {
   final String title;
@@ -210,7 +210,7 @@ class Landing extends StatelessWidget {
                     _showDialog(
                       context,
                       'Login hanya untuk pimpinan dan admin',
-                      const AuthGate(),
+                      const AuthPage(),
                     );
                   },
                 ),

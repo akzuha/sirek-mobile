@@ -81,7 +81,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
               controller: TextEditingController(text: widget.pengumumanName),
               readOnly: true,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 fillColor: Colors.grey[300], // Warna background untuk readonly
                 filled: true,
               ),

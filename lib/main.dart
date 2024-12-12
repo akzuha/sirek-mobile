@@ -5,19 +5,17 @@ import 'package:sirek/admin/dashboard.dart';
 import 'package:sirek/admin/event_page.dart';
 import 'package:sirek/admin/pendaftar_page.dart';
 import 'package:sirek/admin/pengumuman_page.dart';
-import 'package:sirek/mhs/beranda.dart';
+import 'package:sirek/ui/beranda.dart';
 import 'package:sirek/admin/profile_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
-  // supabase setup
-  await Supabase.initialize(
-    anonKey: 
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0ZnJobHJqbHZra2lldHd1emxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwMTY2MjQsImV4cCI6MjA0NzU5MjYyNH0.9TDflktuIjm8NdPpf9ctXCEYiiGAgtpum242rcXglNw",
-    url:"https://vtfrhlrjlvkkietwuzln.supabase.co",
-  );
-  
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -38,11 +36,11 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const Loginpage(),
 
         // Halaman admin
-        '/dashboard': (context) => const Dashboard(),
-        '/event': (context) => const EventPage(),
-        '/pendaftar': (context) => const PendaftarPage(),
+        '/dashboard': (context) => Dashboard(),
+        '/event': (context) => EventPage(),
+        '/pendaftar': (context) => PendaftarPage(),
         '/pengumuman': (context) => const PengumumanPage(),
-        '/profile': (context) => const ProfilePage(),
+        '/profile': (context) => ProfilePage(),
 
         // Halaman mahasiswa
         '/beranda': (context) => const BerandaPage(),

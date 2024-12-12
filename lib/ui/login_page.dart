@@ -1,5 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sirek/auth/auth_service.dart';
+import 'package:sirek/admin/dashboard.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({ super.key });
@@ -9,31 +10,34 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
-  //get auth service
-  final authService = AuthService();
 
-  //text controller
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  //login button pressed
-  void login() async {
-    //prepare data
-    final email = _emailController.text;
-    final password = _passwordController.text;
+  Future<void> signIn() async {
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
 
-    //attempt login
-    try{
-      await authService.signInWithEmailPassword(email, password);
-    }
+    _showDialog(
+      "Login Berhasil",
+      Dashboard(),
+    );
+  } catch (e) {
+    _showDialog(
+      "Login gagal, Kredensial anda tidak terdaftar",
+      null,
+    );
+  }
+}
 
-    //catch any errors
-    catch (e){
-      if(mounted){
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Error: $e")));
-      }
-    }
+  @override
+  void dispose(){
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   _showInput(TextEditingController namacontroller, String placeholder, bool isPassword) {
@@ -63,29 +67,32 @@ class _LoginpageState extends State<Loginpage> {
   );
 }
 
-  _showDialog(pesan, alamat){
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(pesan),
-          actions: [
-            TextButton(
-              child: const Text('Ok'),
-              onPressed: (){
+  void _showDialog(String pesan, Widget? alamat) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(pesan),
+        actions: [
+          TextButton(
+            child: const Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              if (alamat != null) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => alamat,
                   ),
                 );
-              },
-            ),
-          ],
-        );
-      }
-    );
-  }
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
 @override
   Widget build(BuildContext context){
@@ -107,7 +114,7 @@ class _LoginpageState extends State<Loginpage> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children:[
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -161,7 +168,7 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: login,
+                onPressed: signIn,
                 child: const Center(
                       child: Text(
                         'Masuk',

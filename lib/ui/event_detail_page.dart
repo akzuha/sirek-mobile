@@ -1,15 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:sirek/ui/daftar_event_page.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'edit_event_page.dart';
-import 'package:sirek/widgets/admin_bottom_nav.dart';
+import 'package:sirek/widgets/mhsbottom_nav.dart';
 
-class DetailEventPage extends StatelessWidget {
+class EventDetailPage extends StatelessWidget {
   final String eventId;
 
-  const DetailEventPage({super.key, required this.eventId});
+  const EventDetailPage({super.key, required this.eventId});
 
   Future<Map<String, dynamic>> _fetchEventDetails(String id) async {
     final eventDoc = await FirebaseFirestore.instance.collection('event').doc(id).get();
@@ -155,11 +154,11 @@ class DetailEventPage extends StatelessWidget {
                               (eventData['openRec'] as Timestamp).toDate(),
                             )}"
                           : "Open Recruitment: Tanggal tidak tersedia",
-                      style: const TextStyle(fontSize: 14, color: Color.fromARGB(221, 95, 83, 205)),
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.justify,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
                   // Close Recruitment Dates
                   Padding(
@@ -170,178 +169,48 @@ class DetailEventPage extends StatelessWidget {
                               (eventData['closeRec'] as Timestamp).toDate(),
                             )}"
                           : "Close Recruitment: Tanggal tidak tersedia",
-                      style: const TextStyle(fontSize: 14, color: Color.fromARGB(221, 95, 83, 205)),
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
                       textAlign: TextAlign.justify,
                     ),
                   ),
 
-                  const SizedBox(height: 20),               
-                       
-                  // Tombol Edit dan Hapus
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // Navigasi ke halaman EditEventPage
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditEventPage(
-                                    eventId: eventId, // Kirim data jika diperlukan
-                                  ),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            label: const Text(
-                              "Edit",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFECC600),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
+                  const SizedBox(height: 20),                  
 
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              _showDeleteConfirmation(context);
-                            },
-                            icon: const Icon(Icons.delete, color: Colors.white),
-                            label: const Text(
-                              "Hapus",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFD83434),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                  // Register Button
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DaftarEventPage(
+                              eventId: eventId,
                             ),
                           ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF6A220),
+                        padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ],
+                      ),
+                      child: const Text(
+                        "Daftar Sekarang",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
+
+                  const SizedBox(height: 20),
                 ],
               ),
             );
           }
         },
       ),
-      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 1),
-    );
-  }
-
-  void _deleteEvent(BuildContext context) async {
-  try {
-    final eventDoc =
-        FirebaseFirestore.instance.collection('event').doc(eventId);
-
-    // Ambil data event untuk mendapatkan URL file gambar dan booklet
-    final eventSnapshot = await eventDoc.get();
-    if (eventSnapshot.exists) {
-      final eventData = eventSnapshot.data();
-      final imageUrl = eventData?['gambar'];
-      final bookletUrl = eventData?['bookletUrl'];
-
-      // Hapus file gambar di Firebase Storage
-      if (imageUrl != null && imageUrl.isNotEmpty) {
-        try {
-          final ref = FirebaseStorage.instance.refFromURL(imageUrl);
-          await ref.delete();
-        } catch (e) {
-          debugPrint("Error deleting image: $e");
-        }
-      }
-
-      // Hapus file booklet di Firebase Storage
-      if (bookletUrl != null && bookletUrl.isNotEmpty) {
-        try {
-          final ref = FirebaseStorage.instance.refFromURL(bookletUrl);
-          await ref.delete();
-        } catch (e) {
-          debugPrint("Error deleting booklet: $e");
-        }
-      }
-
-      // Hapus data event dari Firestore
-      await eventDoc.delete();
-
-      // Tampilkan pesan sukses
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Event berhasil dihapus!")),
-      );
-
-      // Kembali ke halaman sebelumnya
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Event tidak ditemukan.")),
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error saat menghapus: $e")),
-    );
-  }
-}
-
-
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text(
-            "Konfirmasi Hapus",
-            style: TextStyle(
-              color: Color(0xFF072554),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: const Text("Apakah data ini yakin ingin dihapus?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Kembali ke halaman detail
-              },
-              child: const Text(
-                "TIDAK",
-                style: TextStyle(color: Color(0xFF072554)),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                _deleteEvent(context);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Data berhasil dihapus!"),
-                  ),
-                );
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
-              },
-              child: const Text(
-                "YA",
-                style: TextStyle(color: Color(0xFF072554)),
-              ),
-            ),
-          ],
-        );
-      },
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );
   }
 }

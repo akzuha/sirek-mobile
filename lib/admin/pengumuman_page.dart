@@ -1,18 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:sirek/controllers/pengumuman_controller.dart';
+import 'package:sirek/models/pengumuman_model.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 import 'add_pengumuman_page.dart';
 import 'edit_pengumuman_page.dart';
 
-class PengumumanPage extends StatelessWidget {
+class PengumumanPage extends StatefulWidget {
   const PengumumanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Header dengan logo, judul, dan background biru
-          Container(
+  State<PengumumanPage> createState() => _PengumumanPageState();
+}
+
+class _PengumumanPageState extends State<PengumumanPage> {
+  final PengumumanController _pengumumanController = PengumumanController();
+
+  Future<List<PengumumanModel>> _loadPengumuman() {
+    return _pengumumanController.getAllPengumuman();
+  }
+
+  Widget _tambahDataButton(){
+    return 
+    // Tambah Data Button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const AddPengumumanPage()),
+                        );
+                      },
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text(
+                        "Tambah Pengumuman",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF38CC20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+  }
+
+  Widget _headerContainer(){
+    return Container(
             color: const Color(0xFF072554),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Column(
@@ -62,64 +101,7 @@ class PengumumanPage extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          // Expanded ListView untuk konten pengumuman
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: 5, // Jumlah pengumuman
-              itemBuilder: (context, index) {
-                // Tambahkan tombol "Tambah Pengumuman" hanya di bagian atas
-                if (index == 0) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Tombol Tambah Pengumuman
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AddPengumumanPage(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        label: const Text(
-                          "Tambah Pengumuman",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF38CC20), // Warna hijau
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10), // Jarak setelah tombol
-                      // Pengumuman Card Pertama
-                      _pengumumanCard(
-                        context,
-                        pengumumanName: "Soedirman Student Summit (S3)",
-                        uploadDate: "2024-06-04",
-                      ),
-                    ],
-                  );
-                } else {
-                  // Pengumuman Card berikutnya
-                  return _pengumumanCard(
-                    context,
-                    pengumumanName: "Pengumuman ke-${index + 1}",
-                    uploadDate: "2024-06-0${index + 1}",
-                  );
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 3),
-    );
+          );
   }
 
   // Widget untuk Pengumuman Card
@@ -264,6 +246,62 @@ class PengumumanPage extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder<List<PengumumanModel>>(
+        future: _loadPengumuman(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Column(
+              children: [
+                // Header
+                _headerContainer(),
+                _tambahDataButton(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Text("Tidak Ada data Pengumuman"),
+                ),
+              ],
+            );
+          } else {
+            final pengumumans = snapshot.data!;
+            return Column(
+              children: [
+                _headerContainer(),
+
+                // Tambah Data Button
+                _tambahDataButton(),
+
+                // Expanded ListView untuk konten pengumuman
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    itemCount: pengumumans.length,
+                    itemBuilder: (context, index) {
+                      final pengumuman = pengumumans[index];
+                      final tanggalPengumuman = DateFormat('dd MMMM yyyy', 'id_ID').format(DateTime.parse(pengumuman.tanggalPengumuman as String));
+                      return _pengumumanCard(
+                        context, 
+                        pengumumanName: pengumuman.namaEvent, 
+                        uploadDate: tanggalPengumuman,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
+      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 3),
     );
   }
 }

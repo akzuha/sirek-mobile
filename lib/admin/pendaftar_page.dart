@@ -1,130 +1,112 @@
 import 'package:flutter/material.dart';
+import 'package:sirek/controllers/pendaftar_controller.dart';
+import 'package:sirek/models/pendaftar_model.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 import 'detail_pendaftar_page.dart';
 
 class PendaftarPage extends StatelessWidget {
-  const PendaftarPage({super.key});
+  PendaftarPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
+  final PendaftarController _pendaftarController = PendaftarController();
+
+  Future<List<PendaftarModel>> _loadPendaftar() {
+    return _pendaftarController.getAllPendaftars();
+  }
+
+  Widget _headerContainer() {
+    return Container(   
+      color: const Color(0xFF072554),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header dengan logo di kanan, judul, dan background biru
+          // Logo di kanan atas
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(), // Spacer untuk memindahkan logo ke kanan
+              Image.asset(
+                'images/iconsirek.png', // Logo di kanan
+                height: 40,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Judul
+          const Center(
+            child: Text(
+              "Pendaftar",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          const SizedBox(height: 20),
+
+          // Dropdown pilih event diperkecil
           Container(
             color: const Color(0xFF072554),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Logo di kanan atas
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(), // Spacer untuk memindahkan logo ke kanan
-                    Image.asset(
-                      'images/iconsirek.png', // Logo di kanan
-                      height: 40,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Judul
-                const Center(
-                  child: Text(
-                    "Pendaftar",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: SizedBox(
+              height: 40, // Tinggi dropdown lebih kecil
+              child: DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 8), // Padding diperkecil
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // Dropdown pilih event diperkecil
-                Container(
-                  color: const Color(0xFF072554),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: SizedBox(
-                    height: 40, // Tinggi dropdown lebih kecil
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 8), // Padding diperkecil
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: "Soedirman Student Summit",
-                          child: Text(
-                            "Soedirman Student Summit",
-                            style:
-                                TextStyle(fontSize: 12), // Ukuran font lebih kecil
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: "Desa Cita",
-                          child: Text(
-                            "Desa Cita",
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: "Panggil Sedulur",
-                          child: Text(
-                            "Panggil Sedulur",
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        // Logika saat memilih event
-                      },
-                      hint: const Text(
-                        "Pilih Event",
-                        style: TextStyle(
-                          fontSize: 14, // Ukuran font lebih kecil
-                          color: Colors.grey, // Warna font abu-abu
-                        ),
-                      ),
+                items: const [
+                  DropdownMenuItem(
+                    value: "Soedirman Student Summit",
+                    child: Text(
+                      "Soedirman Student Summit",
+                      style:
+                          TextStyle(fontSize: 12), // Ukuran font lebih kecil
                     ),
                   ),
+                  DropdownMenuItem(
+                    value: "Desa Cita",
+                    child: Text(
+                      "Desa Cita",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: "Panggil Sedulur",
+                    child: Text(
+                      "Panggil Sedulur",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  // Logika saat memilih event
+                },
+                hint: const Text(
+                  "Pilih Event",
+                  style: TextStyle(
+                    fontSize: 14, // Ukuran font lebih kecil
+                    color: Colors.grey, // Warna font abu-abu
+                  ),
                 ),
-              ],
-            ),
-          ),
-
-          // Tambahkan jarak antara container dropdown dan ListView
-          const SizedBox(height: 16), // Jarak antara Container dan ListView
-
-          // ListView
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 4, // Jumlah pendaftar
-              itemBuilder: (context, index) {
-                return _pendaftarCard(
-                  context,
-                  pendaftarName: "Levi Ackerman $index",
-                );
-              },
+              ),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 2),
+      ),               
     );
   }
 
   // Widget untuk Pendaftar Card
-  Widget _pendaftarCard(BuildContext context, {required String pendaftarName}) {
+  Widget _pendaftarCard(BuildContext context, {required String pendaftarName, required String pendaftarId}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16), // Adding spacing between cards
+      margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -139,12 +121,9 @@ class PendaftarPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Nama Pendaftar with more space between text and button
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(
-                  right:
-                      16), // Padding to the right to avoid the name and button being too close
+              padding: const EdgeInsets.only(right:16),
               child: Text(
                 pendaftarName,
                 style: const TextStyle(
@@ -155,8 +134,7 @@ class PendaftarPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(
-              width: 8), // Adding spacing between the name and the button
+          const SizedBox(width: 8),
 
           // Tombol Detail
           ElevatedButton.icon(
@@ -165,7 +143,7 @@ class PendaftarPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => DetailPendaftarPage(
-                    pendaftarName: pendaftarName,
+                    pendaftarId: pendaftarId,
                   ),
                 ),
               );
@@ -193,6 +171,62 @@ class PendaftarPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder<List<PendaftarModel>>(
+        future: _loadPendaftar(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Column(
+              children: [
+                // Header
+                _headerContainer(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Text("No events found"),
+                ),
+              ],
+            );
+          } else {
+            final pendaftars = snapshot.data!;
+
+            return Column(
+              children: [
+                // Header dengan logo di kanan, judul, dan background biru
+                _headerContainer(),           
+
+                // Tambahkan jarak antara container dropdown dan ListView
+                const SizedBox(height: 16),
+
+                // ListView
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: pendaftars.length,
+                    itemBuilder: (context, index) {
+                      final pendaftar = pendaftars[index];
+                      return _pendaftarCard(
+                        context,
+                        pendaftarName: pendaftar.namaPendaftar,
+                        pendaftarId: pendaftar.id,
+                      );
+                    },
+                  ),
+                ),
+              ],
+          );
+        }
+        }
+      ),
+      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 2),
     );
   }
 }

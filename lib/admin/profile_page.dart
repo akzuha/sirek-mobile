@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sirek/landing.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
+
+  final user = FirebaseAuth.instance.currentUser!;
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +45,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                initialValue: "Levi Ackerman",
+                initialValue: user.displayName ?? "Admin User",
                 enabled: false, // Disable input
                 decoration: InputDecoration(
                   filled: true,
@@ -65,7 +70,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                initialValue: "leviackerman@gmail.com",
+                initialValue: user.email ?? "admin@gmail.com",
                 enabled: false, // Disable input
                 decoration: InputDecoration(
                   filled: true,
@@ -90,6 +95,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               TextFormField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: "Password",
@@ -115,6 +121,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               TextFormField(
+                controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: "Password",
@@ -135,14 +142,14 @@ class ProfilePage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Tambahkan logika untuk memperbarui profil
+                    user.updatePassword(_passwordController.text);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6A220),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12), // Tinggi tombol lebih kecil
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: const Text(
                     "Update Profile",
@@ -161,13 +168,14 @@ class ProfilePage extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
+                    FirebaseAuth.instance.signOut();
                     Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(
-    builder: (context) => const Landing(title: "Halaman Landing"),
-  ),
-  (route) => false,
-);
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Landing(title: "Halaman Landing"),
+                      ),
+                      (route) => false,
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFFF6A220)),

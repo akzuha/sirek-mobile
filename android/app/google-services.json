@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "941566958830",
+    "project_id": "sirekmobile-9458a",
+    "storage_bucket": "sirekmobile-9458a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941566958830:android:fa76464d73ab4bb8ac27ff",
+        "android_client_info": {
+          "package_name": "com.sirekmobile.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAMFymMZ7nnztA0HD-a1rYlWZjAosO--4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

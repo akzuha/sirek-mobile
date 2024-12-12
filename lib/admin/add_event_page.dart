@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:sirek/models/event_model.dart';
+import 'package:sirek/controllers/event_controller.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
 class AddEventPage extends StatefulWidget {
@@ -10,42 +14,32 @@ class AddEventPage extends StatefulWidget {
 }
 
 class _AddEventPageState extends State<AddEventPage> {
-  DateTime? openDate;
-  DateTime? closeDate;
-  String? imageFileName;
-  String? bookletFileName;
+  final EventController _eventController = EventController();
+  final _formKey = GlobalKey<FormState>();
 
-  // Fungsi untuk memilih file
-  Future<void> pickFile(bool isImage) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: isImage ? FileType.custom : FileType.custom,
-      allowedExtensions: isImage ? ['png', 'jpg'] : ['pdf'], // Batasan format
-    );
+  String _namaEvent = '';
+  String _deskripsi = '';
+  DateTime? _openRec;
+  DateTime? _closeRec;
+  File? _gambar;
+  File? _booklet;
 
+  // Fungsi untuk memilih file gambar atau booklet
+  Future<void> _pickFile(bool isGambar) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
       setState(() {
-        if (isImage) {
-          imageFileName = result.files.single.name;
+        if (isGambar) {
+          _gambar = File(result.files.single.path!);
         } else {
-          bookletFileName = result.files.single.name;
+          _booklet = File(result.files.single.path!);
         }
       });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isImage
-                ? "Hanya file PNG atau JPG yang diizinkan!"
-                : "Hanya file PDF yang diizinkan!",
-            style: const TextStyle(color: Colors.red),
-          ),
-        ),
-      );
     }
   }
 
   // Fungsi untuk memilih tanggal
-  Future<void> pickDate(BuildContext context, bool isOpenDate) async {
+  Future<void> _pickDate(BuildContext context, bool isOpenRec) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -55,12 +49,51 @@ class _AddEventPageState extends State<AddEventPage> {
 
     if (pickedDate != null) {
       setState(() {
-        if (isOpenDate) {
-          openDate = pickedDate;
+        if (isOpenRec) {
+          _openRec = pickedDate;
         } else {
-          closeDate = pickedDate;
+          _closeRec = pickedDate;
         }
       });
+    }
+  }
+
+  // Fungsi untuk mengirim data ke Firestore
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      try {
+        // Upload file gambar dan booklet
+        String? gambarUrl;
+        String? bookletUrl;
+
+        // Buat objek event baru
+        final newEvent = EventModel(
+          id: '', // ID akan dibuat otomatis oleh Firestore
+          namaEvent: _namaEvent,
+          gambar: gambarUrl ?? '',
+          booklet: bookletUrl ?? '',
+          openRec: _openRec!,
+          closeRec: _closeRec!,
+          deskripsi: _deskripsi,
+        );
+
+        // Tambahkan ke Firestore
+        await _eventController.createEventWithFiles(newEvent, gambarUrl as File?, bookletUrl as File?);
+
+        // Tampilkan notifikasi berhasil
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Event berhasil ditambahkan!')),
+        );
+
+        // Kembali ke halaman sebelumnya
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Terjadi kesalahan: $e')),
+        );
+      }
     }
   }
 
@@ -86,165 +119,129 @@ class _AddEventPageState extends State<AddEventPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Nama Event",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            const TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text("Gambar", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => pickFile(true),
-                  icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text(
-                    "Choose File",
-                    style: TextStyle(color: Colors.white), // Warna putih
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF072554),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(imageFileName ?? "No File Chosen"),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text("Upload File Booklet",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => pickFile(false),
-                  icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text(
-                    "Choose File",
-                    style: TextStyle(color: Colors.white), // Warna putih
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF072554),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(bookletFileName ?? "No File Chosen"),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text("Open Recruitment",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: openDate != null
-                    ? "${openDate!.day}/${openDate!.month}/${openDate!.year}"
-                    : "",
-              ),
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => pickDate(context, true),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text("Close Recruitment",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: closeDate != null
-                    ? "${closeDate!.day}/${closeDate!.month}/${closeDate!.year}"
-                    : "",
-              ),
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => pickDate(context, false),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text("Deskripsi",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            const TextField(
-              maxLines: 5,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      title: const Text(
-                        "Notification",
-                        style: TextStyle(color: Colors.green),
-                      ),
-                      content: const Text(
-                        "Event berhasil ditambahkan!",
-                        textAlign: TextAlign.center,
-                      ),
-                      actions: [
-                        Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF38CC20),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Selesai"),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Input Nama Event
+              const Text("Nama Event", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Nama event tidak boleh kosong';
+                  }
+                  return null;
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF6A220),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                onSaved: (value) => _namaEvent = value!,
+              ),
+              const SizedBox(height: 16),
+
+              // Upload Gambar
+              const Text("Gambar", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _pickFile(true),
+                    icon: const Icon(Icons.upload, color: Colors.white),
+                    label: const Text("Choose File", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF072554)),
                   ),
+                  const SizedBox(width: 10),
+                  Text(_gambar != null ? "File dipilih" : "No File Chosen"),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Upload Booklet
+              const Text("Upload File Booklet", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _pickFile(false),
+                    icon: const Icon(Icons.upload, color: Colors.white),
+                    label: const Text("Choose File", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF072554)),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(_booklet != null ? "File dipilih" : "No File Chosen"),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Input Open Recruitment
+              const Text("Open Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(
+                  text: _openRec != null ? DateFormat('dd/MM/yyyy').format(_openRec!) : '',
                 ),
-                child: const Text(
-                  "Tambah Event",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: () => _pickDate(context, true),
+                  ),
+                  border: const OutlineInputBorder(),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+
+              // Input Close Recruitment
+              const Text("Close Recruitment", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(
+                  text: _closeRec != null ? DateFormat('dd/MM/yyyy').format(_closeRec!) : '',
+                ),
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: () => _pickDate(context, false),
+                  ),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Input Deskripsi
+              const Text("Deskripsi", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                maxLines: 5,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Deskripsi tidak boleh kosong';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _deskripsi = value!,
+              ),
+              const SizedBox(height: 16),
+
+              // Tombol Tambah Event
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF6A220),
+                    padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text("Tambah Event", style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      bottomNavigationBar:
-          const AdminBottomNavBar(currentIndex: 1), // Navbar bawah
+      bottomNavigationBar: const AdminBottomNavBar(currentIndex: 1),
     );
   }
 }

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart'; // Untuk membuka link file PDF
 
@@ -8,19 +9,16 @@ class PengumumanPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double appBarHeight = MediaQuery.of(context).size.height * 0.06;
+
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
+        title: Image.asset(
+          "images/iconsirek.png",
+          height: appBarHeight,
+          fit: BoxFit.contain,
+        ),
         backgroundColor: const Color(0xFF072554),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Image.asset(
-              "images/iconsirek.png", // Ikon di sebelah kanan
-              height: 40,
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -33,7 +31,7 @@ class PengumumanPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: const Center(
                 child: Text(
-                  "Pengumuman Event",
+                  "Pengumuman Pengumuman",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -233,3 +231,4 @@ class PengumumanPage extends StatelessWidget {
     );
   }
 }
+

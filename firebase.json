@@ -1,0 +1,21 @@
+{
+    "flutter":{
+        "platforms":{
+            "android":{
+                "default":{
+                    "projectId":"sirekmobile-9458a",
+                    "appId":"1:941566958830:android:fa76464d73ab4bb8ac27ff",
+                    "fileOutput":"android/app/google-services.json"
+                }
+            },
+        "dart":{
+            "lib/firebase_options.dart":{
+                "projectId":"sirekmobile-9458a","configurations":{
+                    "android":"1:941566958830:android:fa76464d73ab4bb8ac27ff",
+                    "ios":"1:941566958830:ios:33f0c5b90e66239bac27ff",
+                    "web":"1:941566958830:web:085f116de189601dac27ff"
+                }
+            }
+        }}
+    }
+}
