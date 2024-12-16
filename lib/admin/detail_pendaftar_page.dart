@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
@@ -37,40 +38,58 @@ class DetailPendaftarPage extends StatelessWidget {
     );
   }
 
-  // Fungsi untuk membuat bagian file upload
-  Widget _buildFileUploadSection(String title, String fileName) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                // Logika upload file
-              },
-              icon: const Icon(Icons.upload, color: Colors.white),
-              label: const Text(
-                "Choose File",
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF072554),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(fileName, style: const TextStyle(fontSize: 16)),
-          ],
-        ),
-      ],
-    );
+  void _deletePendaftar(BuildContext context) async {
+    try {
+      final pendaftarDoc =
+          FirebaseFirestore.instance.collection('pendaftar').doc(pendaftarId);
+
+      // Ambil data event untuk mendapatkan URL file gambar dan booklet
+      final pendaftarSnapshot = await pendaftarDoc.get();
+      if (pendaftarSnapshot.exists) {
+        final pendaftarData = pendaftarSnapshot.data();
+        final CVfile = pendaftarData?['fileCV'];
+        final LOCfile = pendaftarData?['fileLOC'];
+
+        // Hapus file gambar di Firebase Storage
+        if (CVfile != null && CVfile.isNotEmpty) {
+          try {
+            final ref = FirebaseStorage.instance.refFromURL(CVfile);
+            await ref.delete();
+          } catch (e) {
+            debugPrint("Error hapus file CV: $e");
+          }
+        }
+
+        // Hapus file booklet di Firebase Storage
+        if (LOCfile != null && LOCfile.isNotEmpty) {
+          try {
+            final ref = FirebaseStorage.instance.refFromURL(LOCfile);
+            await ref.delete();
+          } catch (e) {
+            debugPrint("Error hapus file LOC: $e");
+          }
+        }
+
+        // Hapus data event dari Firestore
+        await pendaftarDoc.delete();
+
+        // Tampilkan pesan sukses
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Event berhasil dihapus!")),
+        );
+
+        // Kembali ke halaman sebelumnya
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Event tidak ditemukan.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error saat menghapus: $e")),
+      );
+    }
   }
 
   // Fungsi konfirmasi hapus
@@ -105,6 +124,7 @@ class DetailPendaftarPage extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Data berhasil dihapus!")),
                 );
+                _deletePendaftar(context);
                 Navigator.pop(context);
               },
               child:
@@ -211,9 +231,9 @@ class DetailPendaftarPage extends StatelessWidget {
                         const Divider(height: 32, thickness: 1),
 
                         // Bagian file upload
-                        _buildFileUploadSection("File CV", "CV-Ackerman.pdf"),
+                        _buildDetailRow("File CV", FirebaseStorage.instance.refFromURL(pendaftarData['fileCV']).name),
                         const SizedBox(height: 16),
-                        _buildFileUploadSection("File LoC", "LoC-Ackerman.pdf"),
+                        _buildDetailRow("File LoC",  FirebaseStorage.instance.refFromURL(pendaftarData['fileLOC']).name),
                         const Divider(height: 32, thickness: 1),
 
                         // Tombol Edit dan Hapus
@@ -226,7 +246,7 @@ class DetailPendaftarPage extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => EditPendaftarPage(
-                                        pendaftarId: pendaftarData['id'],
+                                        pendaftarId: pendaftarId,
                                       ),
                                     ),
                                   );

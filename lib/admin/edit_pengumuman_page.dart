@@ -1,10 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
 class EditPengumumanPage extends StatefulWidget {
-  const EditPengumumanPage({super.key, required this.pengumumanName});
+  const EditPengumumanPage({super.key, required this.pengumumanId, required this.pengumumanName});
 
+  final String pengumumanId;
   final String pengumumanName;
 
   @override
@@ -13,10 +17,10 @@ class EditPengumumanPage extends StatefulWidget {
 
 class _EditPengumumanPageState extends State<EditPengumumanPage> {
   String? fileName;
-  DateTime? selectedDate = DateTime.now();
+  String? filePath;
+  DateTime? selectedDate;
 
-  final TextEditingController _keteranganController = TextEditingController(
-      text: "Silahkan unduh pengumuman melalui tombol dibawah ini.");
+  final TextEditingController _keteranganController = TextEditingController();
 
   // Fungsi untuk memilih file
   Future<void> pickFile() async {
@@ -28,6 +32,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
     if (result != null) {
       setState(() {
         fileName = result.files.single.name;
+        filePath = result.files.single.path;
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,6 +56,69 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
       setState(() {
         selectedDate = pickedDate;
       });
+    }
+  }
+
+  // Fungsi untuk mengunggah file ke Firebase Storage
+  Future<String?> uploadFileToStorage(String filePath, String fileName) async {
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('pengumuman_files/$fileName');
+
+      await ref.putFile(File(filePath));
+      return await ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Gagal mengunggah file: $e"),
+        ),
+      );
+      return null;
+    }
+  }
+
+  // Fungsi untuk memperbarui pengumuman ke Firestore
+  Future<void> updatePengumuman() async {
+    if (selectedDate == null || _keteranganController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Semua field harus diisi!"),
+        ),
+      );
+      return;
+    }
+
+    String? fileUrl;
+
+    if (filePath != null && fileName != null) {
+      fileUrl = await uploadFileToStorage(filePath!, fileName!);
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('pengumuman')
+          .doc(widget.pengumumanId)
+          .update({
+        'keterangan': _keteranganController.text,
+        'tanggal': selectedDate?.toIso8601String(),
+        'fileUrl': fileUrl,
+        'fileName': fileName,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Pengumuman berhasil diperbarui!"),
+        ),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Gagal memperbarui pengumuman: $e"),
+        ),
+      );
     }
   }
 
@@ -141,14 +209,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Pengumuman berhasil diperbarui!"),
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
+                onPressed: updatePengumuman,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF6A220),
                   padding:

@@ -195,11 +195,11 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
           children: [
             _buildTextField("Nama", controller: namaController),
             const SizedBox(height: 16),
-            _buildTextField("Email", controller: namaController),
+            _buildTextField("Email", controller: emailController),
             const SizedBox(height: 16),
-            _buildTextField("Telepon", controller: namaController),
+            _buildTextField("Telepon", controller: teleponController),
             const SizedBox(height: 16),
-            _buildTextField("Alamat", controller: namaController),
+            _buildTextField("Alamat", controller: alamatController),
             const SizedBox(height: 16),
 
             // Tanggal Lahir dengan Date Picker
@@ -227,7 +227,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
             const SizedBox(height: 16),
 
             // NIM sebagai input field biasa
-            _buildTextField("NIM", controller: namaController),
+            _buildTextField("NIM", controller: nimController  ),
             const SizedBox(height: 16),
 
             _buildTextField("Jurusan", controller: jurusanController),

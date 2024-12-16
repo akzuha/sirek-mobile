@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sirek/controllers/pengumuman_controller.dart';
@@ -107,7 +109,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
   }
 
   Widget _pengumumanCard(BuildContext context,
-      {required String pengumumanName, required String uploadDate}) {
+      {required String pengumumanName, required String uploadDate, required String pengumumanId}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -156,6 +158,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                   MaterialPageRoute(
                     builder: (context) => EditPengumumanPage(
                       pengumumanName: pengumumanName,
+                      pengumumanId: pengumumanId,
                     ),
                   ),
                 );
@@ -180,7 +183,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
             width: 80,
             child: ElevatedButton.icon(
               onPressed: () {
-                _showDeleteConfirmation(context);
+                _showDeleteConfirmation(context, pengumumanId);
               },
               icon: const Icon(Icons.delete, color: Colors.white, size: 16),
               label: const Text(
@@ -201,7 +204,49 @@ class _PengumumanPageState extends State<PengumumanPage> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
+  void _deletePengumuman(BuildContext context, String pengumumanId) async {
+    try {
+      final pengumumanDoc =
+          FirebaseFirestore.instance.collection('pengumuman').doc(pengumumanId);
+
+      // Ambil data event untuk mendapatkan URL file gambar dan booklet
+      final pengumumanSnapshot = await pengumumanDoc.get();
+      if (pengumumanSnapshot.exists) {
+        final pengumumanData = pengumumanSnapshot.data();
+        final pengumumanFile = pengumumanData?['filePengumuman'];
+
+        // Hapus file gambar di Firebase Storage
+        if (pengumumanFile != null && pengumumanFile.isNotEmpty) {
+          try {
+            final ref = FirebaseStorage.instance.refFromURL(pengumumanFile);
+            await ref.delete();
+          } catch (e) {
+            debugPrint("Error menghapus pengumuman: $e");
+          }
+        }
+
+        await pengumumanDoc.delete();
+
+        // Tampilkan pesan sukses
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Pengumuman berhasil dihapus!")),
+        );
+
+        // Kembali ke halaman sebelumnya
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Event tidak ditemukan.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error saat menghapus: $e")),
+      );
+    }
+  }
+
+  void _showDeleteConfirmation(BuildContext context, String pengumumanId) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -222,7 +267,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Tutup dialog
+                Navigator.pop(context);
               },
               child: const Text(
                 "Tidak",
@@ -231,12 +276,13 @@ class _PengumumanPageState extends State<PengumumanPage> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Tutup dialog
+                Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Pengumuman berhasil dihapus!"),
                   ),
                 );
+                _deletePengumuman(context, pengumumanId);
               },
               child: const Text(
                 "Ya",
@@ -291,6 +337,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                         context,
                         pengumumanName: pengumuman.namaEvent,
                         uploadDate: tanggalPengumuman,
+                        pengumumanId: pengumuman.id,
                       );
                     },
                   ),

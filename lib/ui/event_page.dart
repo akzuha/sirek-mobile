@@ -31,8 +31,8 @@ class EventPage extends StatelessWidget {
     );
   }
 
-  Widget _eventCard(BuildContext context,
-      {required String title,
+  Widget _eventCard(BuildContext context,{
+      required String title,
       required String description,
       required String image,
       required String eventId}) {
@@ -180,7 +180,7 @@ class EventPage extends StatelessWidget {
                 ListView.builder(
                   shrinkWrap: true,
                   physics:
-                      const NeverScrollableScrollPhysics(), // Agar tidak konflik dengan scroll utama
+                      const NeverScrollableScrollPhysics(),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: events.length,

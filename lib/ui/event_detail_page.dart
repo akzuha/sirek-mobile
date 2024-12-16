@@ -58,7 +58,7 @@ class EventDetailPage extends StatelessWidget {
             return const Center(child: Text("Event not found"));
           } else {
             final eventData = snapshot.data!;
-            final bookletUrl = eventData['bookletUrl'] ?? '';
+            final bookletUrl = eventData['booklet'] ?? '';
 
             return SingleChildScrollView(
               child: Column(

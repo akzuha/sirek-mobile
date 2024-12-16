@@ -10,8 +10,9 @@ class AdminBottomNavBar extends StatelessWidget {
   final int currentIndex; // Indeks halaman aktif
 
   void _onTap(BuildContext context, int index) {
-    if (index == currentIndex)
+    if (index == currentIndex) {
       return; // Jika halaman sudah aktif, tidak perlu navigasi ulang
+    }
 
     switch (index) {
       case 0:

@@ -40,7 +40,7 @@ class DetailEventPage extends StatelessWidget {
       if (eventSnapshot.exists) {
         final eventData = eventSnapshot.data();
         final imageUrl = eventData?['gambar'];
-        final bookletUrl = eventData?['bookletUrl'];
+        final bookletUrl = eventData?['booklet'];
 
         // Hapus file gambar di Firebase Storage
         if (imageUrl != null && imageUrl.isNotEmpty) {
@@ -113,13 +113,13 @@ class DetailEventPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                _deleteEvent(context);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Data berhasil dihapus!"),
                   ),
                 );
+                _deleteEvent(context);
                 Navigator.pop(context); // Kembali ke halaman sebelumnya
               },
               child: const Text(
