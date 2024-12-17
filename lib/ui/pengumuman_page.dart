@@ -18,6 +18,10 @@ class PengumumanPage extends StatefulWidget {
 class _PengumumanPageState extends State<PengumumanPage> {
   final PengumumanController _pengumumanController = PengumumanController();
 
+  // Tambahkan GlobalKey untuk ScaffoldMessenger
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   Future<List<PengumumanModel>> _loadPengumuman() async {
     try {
       return await _pengumumanController.getAllPengumuman();
@@ -26,12 +30,13 @@ class _PengumumanPageState extends State<PengumumanPage> {
     }
   }
 
-  Future<void> _downloadAndSaveFile(BuildContext context, String url, String fileName) async {
+  Future<void> _downloadAndSaveFile(
+      BuildContext context, String url, String fileName) async {
     try {
       // Minta izin penyimpanan
       final status = await Permission.storage.request();
       if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        _scaffoldMessengerKey.currentState?.showSnackBar(
           const SnackBar(content: Text('Izin penyimpanan ditolak')),
         );
         return;
@@ -50,14 +55,14 @@ class _PengumumanPageState extends State<PengumumanPage> {
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        _scaffoldMessengerKey.currentState?.showSnackBar(
           SnackBar(content: Text('File berhasil diunduh: $filePath')),
         );
       } else {
         throw Exception("Gagal mengunduh file");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      _scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
@@ -246,60 +251,63 @@ class _PengumumanPageState extends State<PengumumanPage> {
   Widget build(BuildContext context) {
     double appBarHeight = MediaQuery.of(context).size.height * 0.06;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          "images/iconsirek.png",
-          height: appBarHeight,
-          fit: BoxFit.contain,
+    return ScaffoldMessenger(
+      key: _scaffoldMessengerKey, // Tambahkan ini
+      child: Scaffold(
+        appBar: AppBar(
+          title: Image.asset(
+            "images/iconsirek.png",
+            height: appBarHeight,
+            fit: BoxFit.contain,
+          ),
+          backgroundColor: const Color(0xFF072554),
         ),
-        backgroundColor: const Color(0xFF072554),
-      ),
-      body: FutureBuilder<List<PengumumanModel>>(
-        future: _loadPengumuman(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Column(
-              children: [
-                _headerContainer(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text("Tidak Ada data Pengumuman"),
-                ),
-              ],
-            );
-          } else {
-            final pengumumans = snapshot.data!;
-            return Column(
-              children: [
-                _headerContainer(),
-                Expanded(
-                  child: ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    itemCount: pengumumans.length,
-                    itemBuilder: (context, index) {
-                      final pengumuman = pengumumans[index];
-
-                      return _pengumumanCard(
-                        context,
-                        title: pengumuman.namaEvent,
-                        description: pengumuman.keterangan,
-                        pdfUrl: pengumuman.filePengumuman,
-                      );
-                    },
+        body: FutureBuilder<List<PengumumanModel>>(
+          future: _loadPengumuman(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Column(
+                children: [
+                  _headerContainer(),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Text("Tidak Ada data Pengumuman"),
                   ),
-                ),
-              ],
-            );
-          }
-        },
+                ],
+              );
+            } else {
+              final pengumumans = snapshot.data!;
+              return Column(
+                children: [
+                  _headerContainer(),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      itemCount: pengumumans.length,
+                      itemBuilder: (context, index) {
+                        final pengumuman = pengumumans[index];
+
+                        return _pengumumanCard(
+                          context,
+                          title: pengumuman.namaEvent,
+                          description: pengumuman.keterangan,
+                          pdfUrl: pengumuman.filePengumuman,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+        ),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 }
