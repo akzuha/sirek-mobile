@@ -14,12 +14,45 @@ class EventPage extends StatefulWidget {
 
 class _EventPageState extends State<EventPage> {
   final EventController _eventController = EventController();
+  final TextEditingController _searchController = TextEditingController();
+  List<EventModel> _allEvents = [];
+  List<EventModel> _filteredEvents = [];
 
-  Future<List<EventModel>> _loadEvents() {
-    return _eventController.getAllEvents();
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+    _searchController.addListener(_onSearchChanged);
   }
 
-  // Widget untuk Container bagian atas
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadEvents() async {
+    try {
+      final events = await _eventController.getAllEvents();
+      setState(() {
+        _allEvents = events;
+        _filteredEvents = events; // Awalnya tampilkan semua event
+      });
+    } catch (error) {
+      // Tangani kesalahan jika ada
+    }
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _filteredEvents = _allEvents
+          .where((event) =>
+              event.namaEvent.toLowerCase().contains(_searchController.text.toLowerCase()))
+          .toList();
+    });
+  }
+
   Widget _headerContainer() {
     return Container(
       color: const Color(0xFF072554),
@@ -27,20 +60,17 @@ class _EventPageState extends State<EventPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Logo di sebelah kanan
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(), // Spacer untuk memindahkan logo ke kanan
+              const SizedBox(),
               Image.asset(
-                'images/iconsirek.png', // Logo di kanan
+                'images/iconsirek.png',
                 height: 40,
               ),
             ],
           ),
           const SizedBox(height: 10),
-
-          // Judul Event
           const Center(
             child: Text(
               "Event",
@@ -52,24 +82,23 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Search Bar
           TextField(
+            controller: _searchController,
             decoration: InputDecoration(
               hintText: "Apa yang ingin kamu cari...",
               hintStyle: const TextStyle(
-                fontSize: 14, // Ukuran teks placeholder lebih kecil
+                fontSize: 14,
                 color: Colors.grey,
               ),
               prefixIcon: const Icon(Icons.search, color: Colors.black),
               filled: true,
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(
-                vertical: 8, // Tinggi padding sangat kecil
+                vertical: 8,
                 horizontal: 12,
               ),
               constraints: const BoxConstraints(
-                maxHeight: 40, // Atur tinggi maksimum Search Bar
+                maxHeight: 40,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -110,7 +139,6 @@ class _EventPageState extends State<EventPage> {
     );
   }
 
-  // Widget untuk Event Card
   Widget _eventCard(BuildContext context,
       {required String eventName, required String eventId}) {
     return Container(
@@ -130,7 +158,6 @@ class _EventPageState extends State<EventPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Nama Event
           Expanded(
             child: Text(
               eventName,
@@ -142,11 +169,8 @@ class _EventPageState extends State<EventPage> {
             ),
           ),
           const SizedBox(width: 16),
-
-          // Tombol Detail
           ElevatedButton.icon(
             onPressed: () {
-              // Navigasi ke halaman Detail Event
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -159,17 +183,17 @@ class _EventPageState extends State<EventPage> {
             icon: const Icon(
               Icons.description,
               size: 16,
-              color: Colors.white, // Ikon berwarna putih
+              color: Colors.white,
             ),
             label: const Text(
               "Detail",
               style: TextStyle(
-                color: Colors.white, // Teks berwarna putih
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00ADCB), // Warna biru
+              backgroundColor: const Color(0xFF00ADCB),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -183,38 +207,19 @@ class _EventPageState extends State<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<EventModel>>(
-        future: _loadEvents(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Column(
-              children: [
-                _headerContainer(),
-                _tambahDataEvent(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text("No events found"),
-                ),
-              ],
-            );
-          } else {
-            final events = snapshot.data!;
-
-            return Column(
-              children: [
-                _headerContainer(),
-                _tambahDataEvent(),
-                Expanded(
-                  child: ListView.builder(
+      body: Column(
+        children: [
+          _headerContainer(),
+          _tambahDataEvent(),
+          Expanded(
+            child: _filteredEvents.isEmpty
+                ? const Center(child: Text("No events found"))
+                : ListView.builder(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
-                    itemCount: events.length,
+                    itemCount: _filteredEvents.length,
                     itemBuilder: (context, index) {
-                      final event = events[index];
+                      final event = _filteredEvents[index];
                       return _eventCard(
                         context,
                         eventName: event.namaEvent,
@@ -222,11 +227,8 @@ class _EventPageState extends State<EventPage> {
                       );
                     },
                   ),
-                ),
-              ],
-            );
-          }
-        },
+          ),
+        ],
       ),
       bottomNavigationBar: const AdminBottomNavBar(currentIndex: 1),
     );

@@ -30,7 +30,7 @@ class AdminBottomNavBar extends StatelessWidget {
       case 2:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PendaftarPage()),
+          MaterialPageRoute(builder: (context) => const PendaftarPage()),
         );
         break;
       case 3:

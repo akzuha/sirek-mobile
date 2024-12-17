@@ -47,13 +47,13 @@ class DetailPendaftarPage extends StatelessWidget {
       final pendaftarSnapshot = await pendaftarDoc.get();
       if (pendaftarSnapshot.exists) {
         final pendaftarData = pendaftarSnapshot.data();
-        final CVfile = pendaftarData?['fileCV'];
-        final LOCfile = pendaftarData?['fileLOC'];
+        final cvfile = pendaftarData?['fileCV'];
+        final locfile = pendaftarData?['fileLOC'];
 
         // Hapus file gambar di Firebase Storage
-        if (CVfile != null && CVfile.isNotEmpty) {
+        if (cvfile != null && cvfile.isNotEmpty) {
           try {
-            final ref = FirebaseStorage.instance.refFromURL(CVfile);
+            final ref = FirebaseStorage.instance.refFromURL(cvfile);
             await ref.delete();
           } catch (e) {
             debugPrint("Error hapus file CV: $e");
@@ -61,9 +61,9 @@ class DetailPendaftarPage extends StatelessWidget {
         }
 
         // Hapus file booklet di Firebase Storage
-        if (LOCfile != null && LOCfile.isNotEmpty) {
+        if (locfile != null && locfile.isNotEmpty) {
           try {
-            final ref = FirebaseStorage.instance.refFromURL(LOCfile);
+            final ref = FirebaseStorage.instance.refFromURL(locfile);
             await ref.delete();
           } catch (e) {
             debugPrint("Error hapus file LOC: $e");

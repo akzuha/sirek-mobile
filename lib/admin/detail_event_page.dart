@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'edit_event_page.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
@@ -21,12 +20,13 @@ class DetailEventPage extends StatelessWidget {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
+  Future<String> getBookletName(String url) async {
+    try {
+      final ref = FirebaseStorage.instance.refFromURL(url);
+      return ref.name;
+    } catch (e) {
+      debugPrint("Error getting booklet name: $e");
+      return "Nama file tidak tersedia";
     }
   }
 
@@ -104,7 +104,7 @@ class DetailEventPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Kembali ke halaman detail
+                Navigator.pop(context);
               },
               child: const Text(
                 "TIDAK",
@@ -120,7 +120,7 @@ class DetailEventPage extends StatelessWidget {
                   ),
                 );
                 _deleteEvent(context);
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
+                Navigator.pop(context);
               },
               child: const Text(
                 "YA",
@@ -162,7 +162,7 @@ class DetailEventPage extends StatelessWidget {
             return const Center(child: Text("Event not found"));
           } else {
             final eventData = snapshot.data!;
-            final bookletUrl = eventData['bookletUrl'] ?? '';
+            final bookletUrl = eventData['booklet'] ?? '';
 
             return SingleChildScrollView(
               child: Column(
@@ -207,36 +207,42 @@ class DetailEventPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // Download Booklet Button
+                  // Booklet Button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         if (bookletUrl.isNotEmpty) {
                           try {
-                            await _launchURL(bookletUrl);
+                            final bookletName = await getBookletName(bookletUrl);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Nama file booklet: $bookletName"),
+                              ),
+                            );
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text("Gagal membuka booklet: $e")),
+                                content: Text("Gagal mendapatkan nama file booklet: $e"),
+                              ),
                             );
                           }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text("Booklet tidak tersedia")),
+                              content: Text("Booklet tidak tersedia"),
+                            ),
                           );
                         }
                       },
-                      icon: const Icon(Icons.download, color: Colors.white),
-                      label: const Text("Download Booklet"),
+                      icon: const Icon(Icons.file_copy, color: Colors.white, size: 15 ),
+                      label: const Text("Lihat Nama Booklet", style: TextStyle(color: Colors.white, fontSize: 15),),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF072554),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                   ),

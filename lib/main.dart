@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         // Halaman admin
         '/dashboard': (context) => Dashboard(),
         '/event': (context) => const EventPage(),
-        '/pendaftar': (context) => PendaftarPage(),
+        '/pendaftar': (context) => const PendaftarPage(),
         '/pengumuman': (context) => const PengumumanPage(),
         '/profile': (context) => ProfilePage(),
 

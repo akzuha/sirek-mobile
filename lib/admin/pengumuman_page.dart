@@ -17,42 +17,39 @@ class PengumumanPage extends StatefulWidget {
 
 class _PengumumanPageState extends State<PengumumanPage> {
   final PengumumanController _pengumumanController = PengumumanController();
+  final TextEditingController _searchController = TextEditingController();
+  List<PengumumanModel> _allPengumumans = [];
+  List<PengumumanModel> _filteredPengumumans = [];
 
-  Future<List<PengumumanModel>> _loadPengumuman() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadPengumuman();
+    _searchController.addListener(_filterPengumuman);
+  }
+
+  Future<void> _loadPengumuman() async {
     try {
-      return await _pengumumanController.getAllPengumuman();
+      final pengumumans = await _pengumumanController.getAllPengumuman();
+      setState(() {
+        _allPengumumans = pengumumans;
+        _filteredPengumumans = pengumumans;
+      });
     } catch (e) {
-      throw Exception("Gagal memuat data pengumuman: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memuat data pengumuman: $e")),
+      );
     }
   }
 
-  Widget _tambahDataButton() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const AddPengumumanPage()),
-            );
-          },
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: const Text(
-            "Tambah Pengumuman",
-            style: TextStyle(color: Colors.white),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF38CC20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      ),
-    );
+  void _filterPengumuman() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredPengumumans = _allPengumumans
+          .where((pengumuman) =>
+              pengumuman.namaEvent.toLowerCase().contains(query))
+          .toList();
+    });
   }
 
   Widget _headerContainer() {
@@ -88,6 +85,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
           const SizedBox(height: 20),
           // Search Bar
           TextField(
+            controller: _searchController,
             decoration: InputDecoration(
               hintText: "Apa yang ingin kamu cari...",
               hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
@@ -104,6 +102,35 @@ class _PengumumanPageState extends State<PengumumanPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _tambahDataButton() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AddPengumumanPage()),
+            );
+          },
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text(
+            "Tambah Pengumuman",
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF38CC20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -298,37 +325,21 @@ class _PengumumanPageState extends State<PengumumanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<PengumumanModel>>(
-        future: _loadPengumuman(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Column(
-              children: [
-                _headerContainer(),
-                _tambahDataButton(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text("Tidak Ada data Pengumuman"),
-                ),
-              ],
-            );
-          } else {
-            final pengumumans = snapshot.data!;
-            return Column(
-              children: [
-                _headerContainer(),
-                _tambahDataButton(),
-                Expanded(
-                  child: ListView.builder(
+      body: Column(
+        children: [
+          _headerContainer(),
+          _tambahDataButton(),
+          Expanded(
+            child: _filteredPengumumans.isEmpty
+                ? const Center(
+                    child: Text("Tidak ada pengumuman yang ditemukan."),
+                  )
+                : ListView.builder(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
-                    itemCount: pengumumans.length,
+                    itemCount: _filteredPengumumans.length,
                     itemBuilder: (context, index) {
-                      final pengumuman = pengumumans[index];
+                      final pengumuman = _filteredPengumumans[index];
                       final tanggalPengumuman =
                           DateFormat('dd MMMM yyyy', 'id_ID')
                               .format(pengumuman.tanggalPengumuman);
@@ -341,13 +352,16 @@ class _PengumumanPageState extends State<PengumumanPage> {
                       );
                     },
                   ),
-                ),
-              ],
-            );
-          }
-        },
+          ),
+        ],
       ),
       bottomNavigationBar: const AdminBottomNavBar(currentIndex: 3),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }

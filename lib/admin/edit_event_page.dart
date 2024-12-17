@@ -16,15 +16,25 @@ class EditEventPage extends StatefulWidget {
 class _EditEventPageState extends State<EditEventPage> {
   String? bookletFileName;
   DateTime? closeDate;
-  final TextEditingController deskripsiController = TextEditingController();
+  late TextEditingController deskripsiController;
   String? imageFileName;
-  final TextEditingController namaController = TextEditingController();
+  late TextEditingController namaController;
   DateTime? openDate;
 
   @override
   void initState() {
     super.initState();
+    namaController = TextEditingController();
+    deskripsiController = TextEditingController();
     _fetchEventData();
+  }
+
+  @override
+  void dispose() {
+    // Membersihkan controller
+    namaController.dispose();
+    deskripsiController.dispose();
+    super.dispose();
   }
 
   // Fungsi untuk memilih file
@@ -69,6 +79,16 @@ class _EditEventPageState extends State<EditEventPage> {
     }
   }
 
+  Future<String> getBookletName(String url) async {
+    try {
+      final ref = FirebaseStorage.instance.refFromURL(url);
+      return ref.name;
+    } catch (e) {
+      debugPrint("Error getting booklet name: $e");
+      return "Nama file tidak tersedia";
+    }
+  }
+
   // Fungsi untuk memilih tanggal
   Future<void> pickDate(BuildContext context, bool isOpenDate) async {
     DateTime? pickedDate = await showDatePicker(
@@ -100,16 +120,17 @@ class _EditEventPageState extends State<EditEventPage> {
       if (eventDoc.exists) {
         final data = eventDoc.data()!;
         setState(() {
-          namaController.text = data['nama'] ?? '';
+          namaController.text = data['namaEvent'] ?? '';
           deskripsiController.text = data['deskripsi'] ?? '';
           openDate = data['openDate'] != null
-              ? DateTime.parse(data['openDate'])
-              : null;
-          closeDate = data['closeDate'] != null
-              ? DateTime.parse(data['closeDate'])
-              : null;
-          imageFileName = data['imageFileName'] ?? '';
-          bookletFileName = data['bookletFileName'] ?? '';
+            ? (data['openDate'] as Timestamp).toDate()
+            : null;
+
+        closeDate = data['closeDate'] != null
+            ? (data['closeDate'] as Timestamp).toDate()
+            : null;
+          imageFileName = data['gambar'] ?? '';
+          bookletFileName = data['booklet'] ?? '';
         });
       }
     } catch (e) {
@@ -149,7 +170,7 @@ class _EditEventPageState extends State<EditEventPage> {
       Navigator.pop(context); // Kembali ke halaman sebelumnya
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating event: $e")),
+        SnackBar(content: Text("Gagal update event: $e")),
       );
     }
   }
@@ -175,111 +196,103 @@ class _EditEventPageState extends State<EditEventPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Nama Event",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: namaController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
+            
+            _buildTextField("Nama Event", namaController),
             const SizedBox(height: 16),
-            const Text("Deskripsi",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: deskripsiController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildTextField("Deskripsi", deskripsiController, maxLines: 5),
             const SizedBox(height: 16),
-            const Text("Open Recruitment",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: openDate != null
-                    ? "${openDate!.day}/${openDate!.month}/${openDate!.year}"
-                    : "",
-              ),
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => pickDate(context, true),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
+            _buildDateField("Open Recruitment", openDate, true),
             const SizedBox(height: 16),
-            const Text("Close Recruitment",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: closeDate != null
-                    ? "${closeDate!.day}/${closeDate!.month}/${closeDate!.year}"
-                    : "",
-              ),
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () => pickDate(context, false),
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
+            _buildDateField("Close Recruitment", closeDate, false),
             const SizedBox(height: 16),
-            const Text("Upload Gambar",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => pickFile(true),
-                  child: const Text("Pilih File"),
-                ),
-                const SizedBox(width: 10),
-                Text(imageFileName ?? "No File Chosen"),
-              ],
-            ),
+            _buildFilePicker("Upload Gambar", imageFileName, true),
             const SizedBox(height: 16),
-            const Text("Upload File Booklet",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => pickFile(false),
-                  child: const Text("Pilih File"),
-                ),
-                const SizedBox(width: 10),
-                Text(bookletFileName ?? "No File Chosen"),
-              ],
-            ),
+            _buildFilePicker("Upload File Booklet", bookletFileName, false),
             const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: _updateEventData,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF6A220),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  "Edit Event",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ),
+            _buildSubmitButton(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateField(String label, DateTime? date, bool isOpenDate) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        TextField(
+          readOnly: true,
+          controller: TextEditingController(
+            text: date != null
+                ? "${date.day}/${date.month}/${date.year}"
+                : "",
+          ),
+          decoration: InputDecoration(
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.calendar_today),
+              onPressed: () => pickDate(context, isOpenDate),
+            ),
+            border: const OutlineInputBorder(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilePicker(String label, String? fileName, bool isImage) {
+    return Row(
+      children: [
+        ElevatedButton(
+          onPressed: () => pickFile(isImage),
+          child: const Text("Pilih File"),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: Text(fileName ?? "No File Chosen")),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFF6A220),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        onPressed: _updateEventData,
+        child: const Center(
+          child: Text(
+            "Edit Event",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );

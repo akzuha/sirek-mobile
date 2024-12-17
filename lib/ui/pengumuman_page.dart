@@ -1,10 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:sirek/controllers/pengumuman_controller.dart';
-import 'package:sirek/models/pengumuman_model.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
 import '../widgets/mhsbottom_nav.dart';
+import '../controllers/pengumuman_controller.dart';
+import '../models/pengumuman_model.dart';
 
 class PengumumanPage extends StatefulWidget {
   const PengumumanPage({super.key});
@@ -24,160 +26,153 @@ class _PengumumanPageState extends State<PengumumanPage> {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Tidak bisa membuka $url';
+  Future<void> _downloadAndSaveFile(BuildContext context, String url, String fileName) async {
+    try {
+      // Minta izin penyimpanan
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Izin penyimpanan ditolak')),
+        );
+        return;
+      }
+
+      // Tentukan lokasi unduhan
+      final directory = await getExternalStorageDirectory();
+      if (directory == null) {
+        throw Exception("Direktori penyimpanan tidak ditemukan");
+      }
+      final filePath = '${directory.path}/$fileName';
+
+      // Unduh file
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File berhasil diunduh: $filePath')),
+        );
+      } else {
+        throw Exception("Gagal mengunduh file");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
-  Widget _headerContainer(){
+  Widget _headerContainer() {
     return Container(
-              color: const Color(0xFF072554),
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: const Center(
-                child: Text(
-                  "Pengumuman",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            );
-  }
-
-  // Widget untuk kartu pengumuman
-  Widget _pengumumanCard( BuildContext context, {
-    required String title,
-    required String description,
-    required String pdfUrl,
-    required String sizePdf,
-    }) {
-    return FutureBuilder<String>(
-      future: getFileSize(pdfUrl),
-      builder: (context, snapshot) {
-        final fileSize = snapshot.data ?? "Mengambil ukuran...";
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
+      color: const Color(0xFF072554),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: const Center(
+        child: Text(
+          "Pengumuman",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(
-                "images/logo_bem_unsoed.png",
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 100,
-                    width: 100,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image, color: Colors.grey),
-                  );
-                },
-              ),
-              const SizedBox(width: 16),
-
-              // Detail Pengumuman dan Tombol Unduh
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF072554),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Ukuran file: $fileSize",
-                      style: const TextStyle(fontSize: 10, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Tombol Unduh Pengumuman
-                    ElevatedButton(
-                      onPressed: () {
-                        _showDownloadDialog(context, pdfUrl, fileSize, title);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF6A220), // Warna tombol
-                        minimumSize:
-                            const Size(100, 30), // Ukuran tombol diperkecil
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        "Unduh Pengumuman",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  Future<String> getFileSize(String url) async {
-  try {
-    final response = await http.head(Uri.parse(url));
-    if (response.headers.containsKey('content-length')) {
-      final bytes = int.parse(response.headers['content-length']!);
-      if (bytes < 1024) {
-        return "$bytes B";
-      } else if (bytes < 1048576) {
-        return "${(bytes / 1024).toStringAsFixed(2)} KB";
-      } else {
-        return "${(bytes / 1048576).toStringAsFixed(2)} MB";
-      }
-    } else {
-      return "Ukuran tidak diketahui";
-    }
-  } catch (e) {
-    return "Gagal mendapatkan ukuran file";
-  }
-}
+  Widget _pengumumanCard(BuildContext context,
+      {required String title,
+      required String description,
+      required String pdfUrl}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.asset(
+            "images/logo_bem_unsoed.png",
+            height: 100,
+            width: 100,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 100,
+                width: 100,
+                color: Colors.grey[300],
+                child: const Icon(Icons.image, color: Colors.grey),
+              );
+            },
+          ),
+          const SizedBox(width: 16),
 
-  // Fungsi untuk menampilkan dialog unduhan
-  void _showDownloadDialog(BuildContext context, String pdfUrl, String sizePdf, String title) {
+          // Detail Pengumuman dan Tombol Unduh
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF072554),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Tombol Unduh Pengumuman
+                ElevatedButton(
+                  onPressed: () {
+                    _showDownloadDialog(context, pdfUrl, title);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF6A220),
+                    minimumSize: const Size(100, 30),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Unduh Pengumuman",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDownloadDialog(
+      BuildContext context, String pdfUrl, String fileName) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -216,7 +211,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                title,
+                fileName,
                 style: const TextStyle(fontSize: 14, color: Colors.black87),
               ),
               const SizedBox(height: 20),
@@ -231,24 +226,9 @@ class _PengumumanPageState extends State<PengumumanPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () async {
-                  // Buka link unduhan
-                  if (pdfUrl.isNotEmpty) {
-                    try {
-                      await _launchURL(pdfUrl);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("Gagal membuka booklet: $e")),
-                      );
-                    }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("Booklet tidak tersedia")),
-                    );
-                  }
+                onPressed: () {
                   Navigator.of(context).pop();
+                  _downloadAndSaveFile(context, pdfUrl, fileName);
                 },
                 child: const Text(
                   "Unduh Pengumuman",
@@ -299,17 +279,17 @@ class _PengumumanPageState extends State<PengumumanPage> {
                 _headerContainer(),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     itemCount: pengumumans.length,
                     itemBuilder: (context, index) {
                       final pengumuman = pengumumans[index];
 
                       return _pengumumanCard(
-                        context, 
-                        title: pengumuman.namaEvent, 
-                        description: pengumuman.keterangan, 
-                        pdfUrl: pengumuman.filePengumuman, 
-                        sizePdf: pengumuman.filePengumuman,
+                        context,
+                        title: pengumuman.namaEvent,
+                        description: pengumuman.keterangan,
+                        pdfUrl: pengumuman.filePengumuman,
                       );
                     },
                   ),
@@ -319,8 +299,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
           }
         },
       ),
-      bottomNavigationBar:
-          const CustomBottomNavBar(currentIndex: 2),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 }
