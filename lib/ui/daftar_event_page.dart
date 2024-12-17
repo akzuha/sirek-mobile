@@ -399,8 +399,12 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _submitForm,
-        label: const Text("Daftar"),
-        icon: const Icon(Icons.save),
+        label: const Text("Daftar",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        icon: const Icon(Icons.save, color: Colors.white),
         backgroundColor: const Color(0xFF072554),
       ),
     );

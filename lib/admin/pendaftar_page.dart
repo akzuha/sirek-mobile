@@ -4,13 +4,36 @@ import 'package:sirek/models/pendaftar_model.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 import 'detail_pendaftar_page.dart';
 
-class PendaftarPage extends StatelessWidget {
-  PendaftarPage({super.key});
+class PendaftarPage extends StatefulWidget {
+  const PendaftarPage({super.key});
 
+  @override
+  State<PendaftarPage> createState() => _PendaftarPageState();
+}
+
+class _PendaftarPageState extends State<PendaftarPage> {
   final PendaftarController _pendaftarController = PendaftarController();
+  String? _selectedEvent;
+  late Future<List<PendaftarModel>> _futurePendaftars;
+
+  @override
+  void initState() {
+    super.initState();
+    _futurePendaftars = _loadPendaftar();
+  }
 
   Future<List<PendaftarModel>> _loadPendaftar() {
     return _pendaftarController.getAllPendaftars();
+  }
+
+  List<PendaftarModel> _filterPendaftars(
+      List<PendaftarModel> allPendaftars, String? selectedEvent) {
+    if (selectedEvent == null || selectedEvent.isEmpty) {
+      return allPendaftars;
+    }
+    return allPendaftars
+        .where((pendaftar) => pendaftar.namaEvent == selectedEvent)
+        .toList();
   }
 
   Widget _headerContainer() {
@@ -20,19 +43,17 @@ class PendaftarPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Logo di kanan atas
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(), // Spacer untuk memindahkan logo ke kanan
+              const SizedBox(),
               Image.asset(
-                'images/iconsirek.png', // Logo di kanan
+                'images/iconsirek.png',
                 height: 40,
               ),
             ],
           ),
           const SizedBox(height: 10),
-          // Judul
           const Center(
             child: Text(
               "Pendaftar",
@@ -44,19 +65,18 @@ class PendaftarPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Dropdown pilih event diperkecil
           Container(
             color: const Color(0xFF072554),
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SizedBox(
-              height: 40, // Tinggi dropdown lebih kecil
+              height: 40,
               child: DropdownButtonFormField<String>(
+                value: _selectedEvent,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 8), // Padding diperkecil
+                      horizontal: 10, vertical: 8),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -66,7 +86,7 @@ class PendaftarPage extends StatelessWidget {
                     value: "Soedirman Student Summit",
                     child: Text(
                       "Soedirman Student Summit",
-                      style: TextStyle(fontSize: 12), // Ukuran font lebih kecil
+                      style: TextStyle(fontSize: 12),
                     ),
                   ),
                   DropdownMenuItem(
@@ -85,13 +105,15 @@ class PendaftarPage extends StatelessWidget {
                   ),
                 ],
                 onChanged: (value) {
-                  // Logika saat memilih event
+                  setState(() {
+                    _selectedEvent = value;
+                  });
                 },
                 hint: const Text(
                   "Pilih Event",
                   style: TextStyle(
-                    fontSize: 14, // Ukuran font lebih kecil
-                    color: Colors.grey, // Warna font abu-abu
+                    fontSize: 14,
+                    color: Colors.grey,
                   ),
                 ),
               ),
@@ -102,7 +124,6 @@ class PendaftarPage extends StatelessWidget {
     );
   }
 
-  // Widget untuk Pendaftar Card
   Widget _pendaftarCard(BuildContext context,
       {required String pendaftarName, required String pendaftarId}) {
     return Container(
@@ -135,8 +156,6 @@ class PendaftarPage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-
-          // Tombol Detail
           ElevatedButton.icon(
             onPressed: () {
               Navigator.push(
@@ -151,22 +170,22 @@ class PendaftarPage extends StatelessWidget {
             icon: const Icon(
               Icons.description,
               size: 16,
-              color: Colors.white, // White icon color
+              color: Colors.white,
             ),
             label: const Text(
               "Detail",
               style: TextStyle(
-                color: Colors.white, // White text color
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00ADCB), // Blue color
+              backgroundColor: const Color(0xFF00ADCB),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 8), // Button padding
+                  horizontal: 16, vertical: 8),
             ),
           ),
         ],
@@ -178,7 +197,7 @@ class PendaftarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<PendaftarModel>>(
-          future: _loadPendaftar(),
+          future: _futurePendaftars,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -187,7 +206,6 @@ class PendaftarPage extends StatelessWidget {
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Column(
                 children: [
-                  // Header
                   _headerContainer(),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
@@ -196,30 +214,28 @@ class PendaftarPage extends StatelessWidget {
                 ],
               );
             } else {
-              final pendaftars = snapshot.data!;
+              final filteredPendaftars =
+                  _filterPendaftars(snapshot.data!, _selectedEvent);
 
               return Column(
                 children: [
-                  // Header dengan logo di kanan, judul, dan background biru
                   _headerContainer(),
-
-                  // Tambahkan jarak antara container dropdown dan ListView
                   const SizedBox(height: 16),
-
-                  // ListView
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: pendaftars.length,
-                      itemBuilder: (context, index) {
-                        final pendaftar = pendaftars[index];
-                        return _pendaftarCard(
-                          context,
-                          pendaftarName: pendaftar.namaPendaftar,
-                          pendaftarId: pendaftar.id,
-                        );
-                      },
-                    ),
+                    child: filteredPendaftars.isEmpty
+                        ? const Center(child: Text("No pendaftar found"))
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: filteredPendaftars.length,
+                            itemBuilder: (context, index) {
+                              final pendaftar = filteredPendaftars[index];
+                              return _pendaftarCard(
+                                context,
+                                pendaftarName: pendaftar.namaPendaftar,
+                                pendaftarId: pendaftar.id,
+                              );
+                            },
+                          ),
                   ),
                 ],
               );
