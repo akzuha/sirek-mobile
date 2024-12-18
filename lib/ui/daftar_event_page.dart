@@ -89,7 +89,6 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
               },
               child: const Text("OK"),
             ),
