@@ -72,8 +72,15 @@ class Dashboard extends StatelessWidget {
             radius: 25,
             backgroundImage: user.photoURL != null
                 ? NetworkImage(user.photoURL!)
-                : const AssetImage("images/default_profile.png")
-                    as ImageProvider,
+                : null, // Jangan tampilkan child jika ada gambar
+            backgroundColor: Colors.grey[400], // Tidak ada gambar jika photoURL null
+            child: user.photoURL == null
+                ? const Icon(
+                    Icons.person,
+                    size: 30,
+                    color: Colors.white, // Warna ikon
+                  )
+                : null, // Warna latar untuk ikon default
           ),
           const SizedBox(width: 16),
           Expanded(

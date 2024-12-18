@@ -75,14 +75,14 @@ class DetailPendaftarPage extends StatelessWidget {
 
         // Tampilkan pesan sukses
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Event berhasil dihapus!")),
+          const SnackBar(content: Text("Pendaftar berhasil dihapus!")),
         );
 
         // Kembali ke halaman sebelumnya
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Event tidak ditemukan.")),
+          const SnackBar(content: Text("Pendaftar tidak ditemukan.")),
         );
       }
     } catch (e) {

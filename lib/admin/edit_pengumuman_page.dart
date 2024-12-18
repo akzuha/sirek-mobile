@@ -26,7 +26,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
   Future<void> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf'], // Hanya file PDF yang diizinkan
+      allowedExtensions: ['pdf'],
     );
 
     if (result != null) {
@@ -64,7 +64,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
     try {
       final ref = FirebaseStorage.instance
           .ref()
-          .child('pengumuman_files/$fileName');
+          .child('pengumuman/$fileName');
 
       await ref.putFile(File(filePath));
       return await ref.getDownloadURL();
@@ -102,7 +102,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
           .update({
         'keterangan': _keteranganController.text,
         'tanggal': selectedDate?.toIso8601String(),
-        'fileUrl': fileUrl,
+        'filePengumuman': fileUrl,
         'fileName': fileName,
       });
 
@@ -164,16 +164,18 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
                 ElevatedButton.icon(
                   onPressed: pickFile,
                   icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text(
-                    "Choose File",
-                    style: TextStyle(color: Colors.white),
+                  label: const Expanded(
+                    child: Text(
+                      "Pilih File",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF072554),
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(fileName ?? "No File Chosen"),
+                Text(fileName ?? "Belum ada file"),
               ],
             ),
             const SizedBox(height: 16),

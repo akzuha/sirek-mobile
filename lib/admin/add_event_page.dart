@@ -14,26 +14,48 @@ class AddEventPage extends StatefulWidget {
 }
 
 class _AddEventPageState extends State<AddEventPage> {
+  final EventController _eventController = EventController();
+
+  final _formKey = GlobalKey<FormState>();
   File? _booklet;
   DateTime? _closeRec;
-  String _deskripsi = '';
-  final EventController _eventController = EventController();
-  final _formKey = GlobalKey<FormState>();
+  String? _deskripsi;  
   File? _gambar;
-  String _namaEvent = '';
+  String? _namaEvent;
   DateTime? _openRec;
 
   // Fungsi untuk memilih file gambar atau booklet
   Future<void> _pickFile(bool isGambar) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      setState(() {
-        if (isGambar) {
-          _gambar = File(result.files.single.path!);
-        } else {
-          _booklet = File(result.files.single.path!);
-        }
-      });
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: isGambar ? ['png', 'jpg'] : ['pdf'],
+      );
+      if (result != null && result.files.single.path != null) {
+        final selectedFile = File(result.files.single.path!);
+
+        if (await selectedFile.exists()) {
+          setState(() {
+            if (isGambar) {
+              _gambar = File(result.files.single.path!);
+            } else {
+              _booklet = File(result.files.single.path!);
+            }
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("File berhasil dipilih."),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } 
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi kesalahan saat memilih file: $e"),
+        ),
+      );
     }
   }
 
@@ -57,30 +79,38 @@ class _AddEventPageState extends State<AddEventPage> {
     }
   }
 
-  // Fungsi untuk mengirim data ke Firestore
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
+      if (_booklet == null ||
+          _gambar == null ||
+          _closeRec == null ||
+          _openRec == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Semua bidang harus diisi.")),
+        );
+        return;
+      }
+
       try {
         // Upload file gambar dan booklet
-        String? gambarUrl;
-        String? bookletUrl;
+        String gambarUrl = await _eventController.uploadFile(_gambar!, 'event/logo');
+        String bookletUrl = await _eventController.uploadFile(_booklet!, 'event/booklet');
 
         // Buat objek event baru
         final newEvent = EventModel(
-          id: '', // ID akan dibuat otomatis oleh Firestore
-          namaEvent: _namaEvent,
-          gambar: gambarUrl ?? '',
-          booklet: bookletUrl ?? '',
+          id: '',
+          namaEvent: _namaEvent!,
+          gambar: gambarUrl,
+          booklet: bookletUrl,
           openRec: _openRec!,
           closeRec: _closeRec!,
-          deskripsi: _deskripsi,
+          deskripsi: _deskripsi!,
         );
 
         // Tambahkan ke Firestore
-        await _eventController.createEventWithFiles(
-            newEvent, gambarUrl as File?, bookletUrl as File?);
+        await _eventController.createEventWithFiles(newEvent);
 
         // Tampilkan notifikasi berhasil
         ScaffoldMessenger.of(context).showSnackBar(
@@ -149,13 +179,20 @@ class _AddEventPageState extends State<AddEventPage> {
                   ElevatedButton.icon(
                     onPressed: () => _pickFile(true),
                     icon: const Icon(Icons.upload, color: Colors.white),
-                    label: const Text("Choose File",
+                    label: const Text("Pilih File",
                         style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
-                  Text(_gambar != null ? "File dipilih" : "No File Chosen"),
+                  Expanded(
+                    child: Text(
+                      _gambar != null
+                          ? _gambar!.path.split('/').last
+                          : "Belum ada file",
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -169,13 +206,20 @@ class _AddEventPageState extends State<AddEventPage> {
                   ElevatedButton.icon(
                     onPressed: () => _pickFile(false),
                     icon: const Icon(Icons.upload, color: Colors.white),
-                    label: const Text("Choose File",
+                    label: const Text("Pilih File",
                         style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
-                  Text(_booklet != null ? "File dipilih" : "No File Chosen"),
+                  Expanded(
+                    child: Text(
+                      _booklet != null
+                          ? _booklet!.path.split('/').last
+                          : "Belum ada file",
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),

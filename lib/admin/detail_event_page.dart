@@ -16,7 +16,7 @@ class DetailEventPage extends StatelessWidget {
     if (eventDoc.exists) {
       return eventDoc.data()!;
     } else {
-      throw Exception("Event not found");
+      throw Exception("Event tidak ditemukan");
     }
   }
 
@@ -25,7 +25,7 @@ class DetailEventPage extends StatelessWidget {
       final ref = FirebaseStorage.instance.refFromURL(url);
       return ref.name;
     } catch (e) {
-      debugPrint("Error getting booklet name: $e");
+      debugPrint("Error mendapatkan booklet name: $e");
       return "Nama file tidak tersedia";
     }
   }
@@ -48,7 +48,7 @@ class DetailEventPage extends StatelessWidget {
             final ref = FirebaseStorage.instance.refFromURL(imageUrl);
             await ref.delete();
           } catch (e) {
-            debugPrint("Error deleting image: $e");
+            debugPrint("Error menghapus logo: $e");
           }
         }
 
@@ -58,19 +58,16 @@ class DetailEventPage extends StatelessWidget {
             final ref = FirebaseStorage.instance.refFromURL(bookletUrl);
             await ref.delete();
           } catch (e) {
-            debugPrint("Error deleting booklet: $e");
+            debugPrint("Error menghapus booklet: $e");
           }
         }
 
-        // Hapus data event dari Firestore
         await eventDoc.delete();
 
-        // Tampilkan pesan sukses
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Event berhasil dihapus!")),
         );
 
-        // Kembali ke halaman sebelumnya
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +104,7 @@ class DetailEventPage extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: const Text(
-                "TIDAK",
+                "Tidak",
                 style: TextStyle(color: Color(0xFF072554)),
               ),
             ),
@@ -120,10 +117,9 @@ class DetailEventPage extends StatelessWidget {
                   ),
                 );
                 _deleteEvent(context);
-                Navigator.pop(context);
               },
               child: const Text(
-                "YA",
+                "Ya",
                 style: TextStyle(color: Color(0xFF072554)),
               ),
             ),

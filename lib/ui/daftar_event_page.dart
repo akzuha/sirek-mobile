@@ -17,6 +17,9 @@ class DaftarEventPage extends StatefulWidget {
 }
 
 class _DaftarEventPageState extends State<DaftarEventPage> {
+  final _controller = PendaftarController();
+  final _formKey = GlobalKey<FormState>();
+
   String alamat = "";
   String alasan = "";
   int angkatan = 0;
@@ -33,9 +36,6 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
   String pilihanSatu = "";
   int telepon = 0;
   DateTime? tglLahir;
-
-  final _controller = PendaftarController();
-  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {

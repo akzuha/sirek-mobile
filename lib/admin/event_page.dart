@@ -213,7 +213,7 @@ class _EventPageState extends State<EventPage> {
           _tambahDataEvent(),
           Expanded(
             child: _filteredEvents.isEmpty
-                ? const Center(child: Text("No events found"))
+                ? const Center(child: Text("Tidak menemukan data event"))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),

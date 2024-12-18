@@ -61,13 +61,17 @@ class EventRepository {
   // Upload file to Firebase Storage
   Future<String> uploadFile(File file, String folder) async {
     try {
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      String fileName = "${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}";
       Reference ref = _storage.ref().child('$folder/$fileName');
       UploadTask uploadTask = ref.putFile(file);
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        print("Progress upload: ${(progress * 100).toStringAsFixed(2)}%");
+      });
       TaskSnapshot snapshot = await uploadTask;
       return await snapshot.ref.getDownloadURL();
     } catch (e) {
-      throw Exception('Failed to upload file: $e');
+      throw Exception('Gagal unggah file: $e');
     }
   }
 
@@ -78,38 +82,27 @@ class EventRepository {
       final String path = Uri.parse(url).pathSegments.skip(1).join('/');
       await _storage.ref(path).delete();
     } catch (e) {
-      throw Exception('Failed to delete file: $e');
+      throw Exception('Gagal hapus file: $e');
     }
   }
 
   // Create a new event
-  Future<void> createEventWithFiles(
-      EventModel event, File? imageFile, File? bookletFile) async {
+  Future<void> createEvent(EventModel event) async {
     try {
-      String? imageUrl;
-      String? bookletUrl;
-
-      if (imageFile != null) {
-        imageUrl = await uploadFile(imageFile, 'event/logo');
-      }
-
-      if (bookletFile != null) {
-        bookletUrl = await uploadFile(bookletFile, 'event/booklet');
-      }
-
+      // Update data event dengan URL file yang diunggah
       final updatedEvent = EventModel(
         id: event.id,
         namaEvent: event.namaEvent,
-        gambar: imageUrl ?? '',
-        booklet: bookletUrl ?? '',
+        gambar: event.gambar,
+        booklet: event.booklet,
         openRec: event.openRec,
         closeRec: event.closeRec,
         deskripsi: event.deskripsi,
       );
-
+      // Simpan ke Firestore
       await _firestore.collection('event').add(updatedEvent.toMap());
     } catch (e) {
-      throw Exception('Failed to create event: $e');
+      throw Exception('Gagal membuat event. Detail error: ${e.toString()}');
     }
   }
 
@@ -122,7 +115,7 @@ class EventRepository {
 
       if (imageFile != null) {
         // Upload new image and delete the old one if exists
-        newImageUrl = await uploadFile(imageFile, 'images');
+        newImageUrl = await uploadFile(imageFile, 'event/logo');
         if (event.gambar.isNotEmpty) {
           await deleteFile(event.gambar);
         }
@@ -130,7 +123,7 @@ class EventRepository {
 
       if (bookletFile != null) {
         // Upload new booklet and delete the old one if exists
-        newBookletUrl = await uploadFile(bookletFile, 'booklets');
+        newBookletUrl = await uploadFile(bookletFile, 'event/booklet');
         if (event.booklet.isNotEmpty) {
           await deleteFile(event.booklet);
         }
@@ -148,26 +141,12 @@ class EventRepository {
 
       await _firestore.collection('event').doc(id).update(updatedEvent.toMap());
     } catch (e) {
-      throw Exception('Failed to update event: $e');
+      throw Exception('Gagal update event: $e');
     }
   }
 
   // Delete an event
-  Future<void> deleteEventWithFiles(String id, EventModel event) async {
-    try {
-      // Delete associated files from Firebase Storage
-      if (event.gambar.isNotEmpty) {
-        await deleteFile(event.gambar);
-      }
-
-      if (event.booklet.isNotEmpty) {
-        await deleteFile(event.booklet);
-      }
-
-      // Delete the event document from Firestore
-      await _firestore.collection('event').doc(id).delete();
-    } catch (e) {
-      throw Exception('Failed to delete event: $e');
-    }
+  Future<void> deleteEventWithFiles(String id) async {
+    await _firestore.collection('event').doc(id).delete();
   }
 }

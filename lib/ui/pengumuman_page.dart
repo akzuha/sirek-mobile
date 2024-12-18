@@ -1,9 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:http/http.dart' as http;
-
 import '../widgets/mhsbottom_nav.dart';
 import '../controllers/pengumuman_controller.dart';
 import '../models/pengumuman_model.dart';
@@ -18,53 +18,11 @@ class PengumumanPage extends StatefulWidget {
 class _PengumumanPageState extends State<PengumumanPage> {
   final PengumumanController _pengumumanController = PengumumanController();
 
-  // Tambahkan GlobalKey untuk ScaffoldMessenger
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
-
   Future<List<PengumumanModel>> _loadPengumuman() async {
     try {
       return await _pengumumanController.getAllPengumuman();
     } catch (e) {
       throw Exception("Gagal memuat data pengumuman: $e");
-    }
-  }
-
-  Future<void> _downloadAndSaveFile(
-      BuildContext context, String url, String fileName) async {
-    try {
-      // Minta izin penyimpanan
-      final status = await Permission.storage.request();
-      if (!status.isGranted) {
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          const SnackBar(content: Text('Izin penyimpanan ditolak')),
-        );
-        return;
-      }
-
-      // Tentukan lokasi unduhan
-      final directory = await getExternalStorageDirectory();
-      if (directory == null) {
-        throw Exception("Direktori penyimpanan tidak ditemukan");
-      }
-      final filePath = '${directory.path}/$fileName';
-
-      // Unduh file
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes);
-
-        _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(content: Text('File berhasil diunduh: $filePath')),
-        );
-      } else {
-        throw Exception("Gagal mengunduh file");
-      }
-    } catch (e) {
-      _scaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
     }
   }
 
@@ -87,9 +45,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
   }
 
   Widget _pengumumanCard(BuildContext context,
-      {required String title,
-      required String description,
-      required String pdfUrl}) {
+      {required String title, required String description, required String pdfUrl}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -154,8 +110,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6A220),
                     minimumSize: const Size(100, 30),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -176,8 +131,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
     );
   }
 
-  void _showDownloadDialog(
-      BuildContext context, String pdfUrl, String fileName) {
+  void _showDownloadDialog(BuildContext context, String pdfUrl, String fileName) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -193,8 +147,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                 "Unduh Pengumuman",
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF072554),
+                  fontWeight: FontWeight.bold, color: Color(0xFF072554),
                 ),
               ),
               IconButton(
@@ -233,7 +186,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _downloadAndSaveFile(context, pdfUrl, fileName);
+                  _checkAndDownload(pdfUrl, fileName);
                 },
                 child: const Text(
                   "Unduh Pengumuman",
@@ -247,67 +200,96 @@ class _PengumumanPageState extends State<PengumumanPage> {
     );
   }
 
+  Future<void> _checkAndDownload(String url, String fileName) async {
+    var status = await Permission.storage.status;
+    if (status.isGranted) {
+      _downloadFile(url, fileName);
+    } else if (status.isDenied) {
+      if (await Permission.storage.request().isGranted) {
+        _downloadFile(url, fileName);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Izin penyimpanan ditolak")),
+        );
+      }
+    }
+  }
+
+  Future<void> _downloadFile(String url, String fileName) async {
+    try {
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String savePath = "${appDocDir.path}/$fileName";
+
+      Dio dio = Dio();
+      await dio.download(url, savePath);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("File berhasil diunduh: $savePath")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal mengunduh file: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double appBarHeight = MediaQuery.of(context).size.height * 0.06;
 
-    return ScaffoldMessenger(
-      key: _scaffoldMessengerKey, // Tambahkan ini
-      child: Scaffold(
-        appBar: AppBar(
-          title: Image.asset(
-            "images/iconsirek.png",
-            height: appBarHeight,
-            fit: BoxFit.contain,
-          ),
-          backgroundColor: const Color(0xFF072554),
+    return Scaffold(
+      appBar: AppBar(
+        title: Image.asset(
+          "images/iconsirek.png",
+          height: appBarHeight,
+          fit: BoxFit.contain,
         ),
-        body: FutureBuilder<List<PengumumanModel>>(
-          future: _loadPengumuman(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Column(
-                children: [
-                  _headerContainer(),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Text("Tidak Ada data Pengumuman"),
-                  ),
-                ],
-              );
-            } else {
-              final pengumumans = snapshot.data!;
-              return Column(
-                children: [
-                  _headerContainer(),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      itemCount: pengumumans.length,
-                      itemBuilder: (context, index) {
-                        final pengumuman = pengumumans[index];
-
-                        return _pengumumanCard(
-                          context,
-                          title: pengumuman.namaEvent,
-                          description: pengumuman.keterangan,
-                          pdfUrl: pengumuman.filePengumuman,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            }
-          },
-        ),
-        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
+        backgroundColor: const Color(0xFF072554),
       ),
+      body: FutureBuilder<List<PengumumanModel>>(
+        future: _loadPengumuman(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Column(
+              children: [
+                _headerContainer(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Text("Tidak Ada data Pengumuman"),
+                ),
+              ],
+            );
+          } else {
+            final pengumumans = snapshot.data!;
+            return Column(
+              children: [
+                _headerContainer(),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    itemCount: pengumumans.length,
+                    itemBuilder: (context, index) {
+                      final pengumuman = pengumumans[index];
+
+                      return _pengumumanCard(
+                        context,
+                        title: pengumuman.namaEvent,
+                        description: pengumuman.keterangan,
+                        pdfUrl: pengumuman.filePengumuman,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class PendaftarModel {
   PendaftarModel({
@@ -88,6 +91,7 @@ class PendaftarModel {
 // model/event_model.dart
 class PendaftarRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // Fetch all events
   Future<List<PendaftarModel>> fetchAllPendaftars() async {
@@ -97,9 +101,51 @@ class PendaftarRepository {
         .toList();
   }
 
+  // Upload file to Firebase Storage
+  Future<String> uploadFile(File file, String folder) async {
+    try {
+      String fileName = "${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}";
+      Reference ref = _storage.ref().child('$folder/$fileName');
+      UploadTask uploadTask = ref.putFile(file);
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        print("Progress upload: ${(progress * 100).toStringAsFixed(2)}%");
+      });
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      throw Exception('Gagal unggah file: $e');
+    }
+  }
+
   // Create a new event
   Future<void> createPendaftar(PendaftarModel pendaftar) async {
-    await _firestore.collection('pendaftar').add(pendaftar.toMap());
+    try {
+
+      final createPendaftar = PendaftarModel(
+        id: pendaftar.id,
+        namaEvent: pendaftar.namaEvent,
+        namaPendaftar: pendaftar.namaPendaftar, 
+        emailPendaftar: pendaftar.emailPendaftar, 
+        telepon: pendaftar.telepon, 
+        alamat: pendaftar.alamat, 
+        tglLahir: pendaftar.tglLahir, 
+        jenisKelamin: pendaftar.jenisKelamin, 
+        nim: pendaftar.nim, 
+        jurusan: pendaftar.jurusan, 
+        fakultas: pendaftar.fakultas, 
+        angkatan: pendaftar.angkatan,
+        pilihanSatu: pendaftar.pilihanSatu, 
+        pilihanDua: pendaftar.pilihanDua, 
+        alasan: pendaftar.alasan, 
+        fileCV: pendaftar.fileCV, 
+        fileLOC: pendaftar.fileLOC,
+      );
+
+      await _firestore.collection('pendaftar').add(createPendaftar.toMap());
+    } catch (e) {
+      throw Exception('Failed to create event: $e');
+    }
   }
 
   // Update an event
@@ -113,41 +159,4 @@ class PendaftarRepository {
   }
 }
 
-  //  Future<void> createPendaftar(PendaftarModel pendaftar,  File? cvFile, File? locFile) async {
-  //   try {
-  //     String? FileLOC;
-  //     String? FileCV;
-
-  //     if (locFile != null) {
-  //       FileLOC = await uploadFile(locFile, 'pendaftar/file LOC');
-  //     }
-
-  //     if (cvFile != null) {
-  //       FileCV = await uploadFile(cvFile, 'pendaftar/file CV');
-  //     }
-
-  //     final updatedEvent = PendaftarModel(
-  //       id: pendaftar.id,
-  //       namaEvent: pendaftar.namaEvent,
-  //       namaPendaftar: pendaftar.namaPendaftar, 
-  //       emailPendaftar: pendaftar.emailPendaftar, 
-  //       telepon: pendaftar.telepon, 
-  //       alamat: pendaftar.alamat, 
-  //       tglLahir: pendaftar.tglLahir, 
-  //       jenisKelamin: pendaftar.jenisKelamin, 
-  //       nim: pendaftar.nim, 
-  //       jurusan: pendaftar.jurusan, 
-  //       fakultas: pendaftar.fakultas, 
-  //       angkatan: pendaftar.angkatan,
-  //       pilihanSatu: pendaftar.pilihanSatu, 
-  //       pilihanDua: pendaftar.pilihanDua, 
-  //       alasan: pendaftar.alasan, 
-  //       fileCV: FileCV ?? '', 
-  //       fileLOC: FileLOC ?? '',
-  //     );
-
-  //     await _firestore.collection('event').add(updatedEvent.toMap());
-  //   } catch (e) {
-  //     throw Exception('Failed to create event: $e');
-  //   }
-  // }
+   

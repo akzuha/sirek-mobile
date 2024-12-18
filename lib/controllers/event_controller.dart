@@ -9,10 +9,15 @@ class EventController {
     return await _eventRepository.fetchAllEvents();
   }
 
+  // Upload File
+  Future<String> uploadFile(File file, String folder) async {
+    return await _eventRepository.uploadFile(file, folder);
+  }
+
   // Create a new event with files
   Future<void> createEventWithFiles(
-      EventModel event, File? imageFile, File? bookletFile) async {
-    await _eventRepository.createEventWithFiles(event, imageFile, bookletFile);
+      EventModel event) async {
+    await _eventRepository.createEvent(event);
   }
 
   // Update an event with files
@@ -23,7 +28,7 @@ class EventController {
   }
 
   // Delete an event with its associated files
-  Future<void> deleteEventWithFiles(String id, EventModel event) async {
-    await _eventRepository.deleteEventWithFiles(id, event);
+  Future<void> deleteEventWithFiles(String id) async {
+    await _eventRepository.deleteEventWithFiles(id);
   }
 }

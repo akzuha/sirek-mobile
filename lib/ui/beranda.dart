@@ -37,38 +37,6 @@ class BerandaPage extends StatelessWidget {
     );
   }
 
-  // Widget untuk Kartu Booklet
-  Widget _bookletCard(BuildContext context, String title, String imagePath) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Klik pada booklet: $title")),
-        );
-      },
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              height: 100,
-              width: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,36 +175,6 @@ class BerandaPage extends StatelessWidget {
                   "Gelombang",
                   "Menggambarkan pergerakan yang dinamis serta keberanian yang tulus dalam menghadapi berbagai tantangan, terus melangkah bersama karsa guna mencapai tujuan bersama.",
                   "images/logo_gelombang.png",
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Booklet Section
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                "BOOKLET",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF072554),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _bookletCard(
-                  context,
-                  "Desa Cita",
-                  "images/booklet_desa_cita.png",
-                ),
-                const SizedBox(width: 10),
-                _bookletCard(
-                  context,
-                  "Panggih Sedulur",
-                  "images/booklet_panggil_sedulur.png",
                 ),
               ],
             ),

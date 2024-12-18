@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sirek/controllers/event_controller.dart';
 import 'package:sirek/controllers/pendaftar_controller.dart';
+import 'package:sirek/models/event_model.dart';
 import 'package:sirek/models/pendaftar_model.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 import 'detail_pendaftar_page.dart';
@@ -13,6 +15,7 @@ class PendaftarPage extends StatefulWidget {
 
 class _PendaftarPageState extends State<PendaftarPage> {
   final PendaftarController _pendaftarController = PendaftarController();
+  final EventController _eventController = EventController();
   String? _selectedEvent;
   late Future<List<PendaftarModel>> _futurePendaftars;
 
@@ -24,6 +27,10 @@ class _PendaftarPageState extends State<PendaftarPage> {
 
   Future<List<PendaftarModel>> _loadPendaftar() {
     return _pendaftarController.getAllPendaftars();
+  }
+
+  Future<List<EventModel>> _loadEvent() {
+    return _eventController.getAllEvents();
   }
 
   List<PendaftarModel> _filterPendaftars(
@@ -65,59 +72,59 @@ class _PendaftarPageState extends State<PendaftarPage> {
             ),
           ),
           const SizedBox(height: 20),
-          Container(
-            color: const Color(0xFF072554),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: SizedBox(
-              height: 40,
-              child: DropdownButtonFormField<String>(
-                value: _selectedEvent,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 8),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: "Soedirman Student Summit",
-                    child: Text(
-                      "Soedirman Student Summit",
-                      style: TextStyle(fontSize: 12),
+          FutureBuilder<List<EventModel>>(
+            future: _loadEvent(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text('No events available');
+              } else {
+                final events = snapshot.data!;
+                return Container(
+                  color: const Color(0xFF072554),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    height: 40,
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedEvent,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      items: events.map((event){
+                        return DropdownMenuItem<String>(
+                          value: event.namaEvent,
+                          child: Text(
+                            event.namaEvent,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedEvent = value;
+                        });
+                      },
+                      hint: const Text(
+                        "Pilih Event",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
                   ),
-                  DropdownMenuItem(
-                    value: "Desa Cita",
-                    child: Text(
-                      "Desa Cita",
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: "Panggil Sedulur",
-                    child: Text(
-                      "Panggil Sedulur",
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedEvent = value;
-                  });
-                },
-                hint: const Text(
-                  "Pilih Event",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
+                );
+              }
+            }            
           ),
         ],
       ),

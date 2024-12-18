@@ -2,16 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sirek/admin/dashboard.dart';
 
-class Loginpage extends StatefulWidget {
-  const Loginpage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<Loginpage> createState() => _LoginpageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginpageState extends State<Loginpage> {
+class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  final _primaryColor = const Color(0xFF072554);
+  final _buttonColor = const Color(0xFFF6A220);
 
   @override
   void dispose() {
@@ -21,32 +24,44 @@ class _LoginpageState extends State<Loginpage> {
   }
 
   Future<void> signIn() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showDialog(
+        "Login Gagal",
+        "Email dan Password tidak boleh kosong.",
+        null,
+      );
+      return;
+    }
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: email,
+        password: password,
       );
 
       _showDialog(
         "Login Berhasil",
+        "Anda berhasil masuk.",
         Dashboard(),
       );
     } catch (e) {
       _showDialog(
-        "Login gagal, Kredensial anda tidak terdaftar",
+        "Login Gagal",
+        "Kredensial Anda tidak terdaftar.",
         null,
       );
     }
   }
 
-  _showInput(TextEditingController namacontroller, String placeholder,
-      bool isPassword) {
+  Widget _buildInputField(
+      TextEditingController controller, String placeholder, bool isPassword) {
     return TextField(
-      controller: namacontroller,
+      controller: controller,
       obscureText: isPassword,
-      style: const TextStyle(
-        color: Colors.white,
-      ),
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -59,32 +74,29 @@ class _LoginpageState extends State<Loginpage> {
           borderSide: BorderSide(color: Colors.white, width: 2.0),
         ),
         hintText: placeholder,
-        hintStyle: const TextStyle(
-          color: Colors.white70,
-        ),
+        hintStyle: const TextStyle(color: Colors.white70),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
       ),
     );
   }
 
-  void _showDialog(String pesan, Widget? alamat) {
+  void _showDialog(String title, String message, Widget? nextPage) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(pesan),
+          title: Text(title),
+          content: Text(message),
           actions: [
             TextButton(
               child: const Text('Ok'),
               onPressed: () {
                 Navigator.of(context).pop();
-                if (alamat != null) {
-                  Navigator.push(
+                if (nextPage != null) {
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => alamat,
-                    ),
+                    MaterialPageRoute(builder: (context) => nextPage),
                   );
                 }
               },
@@ -97,6 +109,8 @@ class _LoginpageState extends State<Loginpage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -106,88 +120,84 @@ class _LoginpageState extends State<Loginpage> {
         title: Align(
           alignment: Alignment.centerRight,
           child: Image.asset(
-              height: MediaQuery.of(context).size.height * 0.06,
-              fit: BoxFit.contain,
-              "images/iconsirek.png"),
-        ),
-        backgroundColor: const Color(0xFF072554),
-      ),
-      backgroundColor: const Color(0xFF072554),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Image.asset(
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    fit: BoxFit.contain,
-                    "images/logo.png"),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30),
-                child: Text(
-                  "Selamat Datang, \nAdmin/Pimpinan",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(style: TextStyle(color: Colors.white), "Email"),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              _showInput(_emailController, 'isi email anda', false),
-              const SizedBox(
-                height: 20,
-              ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(style: TextStyle(color: Colors.white), "Password"),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              _showInput(_passwordController, 'password', true),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF6A220),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: signIn,
-                  child: const Center(
-                    child: Text(
-                      'Masuk',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            "images/iconsirek.png",
+            height: screenHeight * 0.06,
+            fit: BoxFit.contain,
           ),
+        ),
+        backgroundColor: _primaryColor,
+      ),
+      backgroundColor: _primaryColor,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Image.asset(
+                "images/logo.png",
+                height: screenHeight * 0.2,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 30),
+              child: Text(
+                "Selamat Datang, \nAdmin/Pimpinan",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Email",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildInputField(_emailController, 'Isi email anda', false),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Password",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildInputField(_passwordController, 'Password', true),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _buttonColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: signIn,
+                child: const Center(
+                  child: Text(
+                    'Masuk',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:sirek/controllers/pengumuman_controller.dart';
 import 'package:sirek/models/event_model.dart';
@@ -16,11 +14,12 @@ class AddPengumumanPage extends StatefulWidget {
 }
 
 class _AddPengumumanPageState extends State<AddPengumumanPage> {
+  final PengumumanController _pengumumanController = PengumumanController();
+  final _formKey = GlobalKey<FormState>();
+
   List<EventModel> _eventList = [];
   File? _filePengumuman;
-  final _formKey = GlobalKey<FormState>();
   String? _keterangan;
-  final PengumumanController _pengumumanController = PengumumanController();
   String? _selectedEvent;
   DateTime? _tanggalPengumuman;
 
@@ -50,20 +49,8 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
               duration: Duration(seconds: 2),
             ),
           );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("File tidak ditemukan. Coba pilih ulang."),
-            ),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Tidak ada file yang dipilih."),
-          ),
-        );
-      }
+        } 
+      } 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -104,11 +91,11 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
 
       try {
         // Coba unggah file PDF
-        String pengumumanUrl = await _uploadFileToStorage(_filePengumuman!);
+        String pengumumanUrl = await _pengumumanController.uploadFile(_filePengumuman!, 'pengumuman');
 
         // Buat objek pengumuman baru
         final newPengumuman = PengumumanModel(
-          id: '', // ID akan dibuat otomatis oleh Firestore
+          id: '',
           namaEvent: _selectedEvent!,
           filePengumuman: pengumumanUrl,
           keterangan: _keterangan!,
@@ -116,8 +103,7 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
         );
 
         // Tambahkan ke Firestore melalui controller
-        await _pengumumanController.createPengumuman(
-            newPengumuman, _filePengumuman);
+        await _pengumumanController.createPengumuman(newPengumuman);
 
         // Tampilkan notifikasi berhasil
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,34 +118,6 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
           SnackBar(content: Text('Terjadi kesalahan: $e')),
         );
       }
-    }
-  }
-
-  // Fungsi untuk mengunggah file ke Firebase Storage
-  Future<String> _uploadFileToStorage(File file) async {
-    try {
-      // Mendapatkan nama file yang unik menggunakan timestamp
-      String fileName =
-          "${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}";
-      Reference storageRef =
-          FirebaseStorage.instance.ref().child('pengumuman/$fileName');
-
-      // Menjalankan proses pengunggahan file
-      UploadTask uploadTask = storageRef.putFile(file);
-
-      // Menampilkan progress upload ke console
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
-        print("Progress upload: ${(progress * 100).toStringAsFixed(2)}%");
-      });
-
-      // Menunggu hingga unggahan selesai
-      TaskSnapshot snapshot = await uploadTask;
-
-      // Mendapatkan URL file yang diunggah
-      return await snapshot.ref.getDownloadURL();
-    } catch (e) {
-      throw Exception("Gagal mengunggah file ke Firebase Storage: $e");
     }
   }
 
@@ -228,16 +186,19 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
                   ElevatedButton.icon(
                     onPressed: pickFile,
                     icon: const Icon(Icons.upload, color: Colors.white),
-                    label: const Text("Choose File",
+                    label: const Text("Pilih File",
                         style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    _filePengumuman != null
-                        ? _filePengumuman!.path.split('/').last
-                        : "No File Chosen",
+                  Expanded(
+                    child: Text(
+                      _filePengumuman != null
+                          ? _filePengumuman!.path.split('/').last
+                          : "Belum ada file",
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

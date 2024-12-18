@@ -53,44 +53,72 @@ class PengumumanRepository {
   // Upload file to Firebase Storage
   Future<String> uploadFile(File file, String folder) async {
     try {
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      String fileName = "${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}";
       Reference ref = _storage.ref().child('$folder/$fileName');
       UploadTask uploadTask = ref.putFile(file);
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+        print("Progress upload: ${(progress * 100).toStringAsFixed(2)}%");
+      });
       TaskSnapshot snapshot = await uploadTask;
       return await snapshot.ref.getDownloadURL();
     } catch (e) {
-      throw Exception('Failed to upload file: $e');
+      throw Exception('Gagal unggah file: $e');
     }
   }
 
-  Future<void> createPengumumanWithFiles(
-      PengumumanModel pengumuman, File? pengumumanFile) async {
+  Future<void> createPengumuman(
+      PengumumanModel pengumuman) async {
     try {
-      String? filePengumuman;
-
-      if (pengumumanFile != null) {
-        filePengumuman = await uploadFile(pengumumanFile, 'pengumuman');
-      }
-
-      final updatedEvent = PengumumanModel(
+      final createdPengumuman = PengumumanModel(
         id: pengumuman.id,
         namaEvent: pengumuman.namaEvent,
-        filePengumuman: filePengumuman ?? '',
+        filePengumuman: pengumuman.filePengumuman,
         keterangan: pengumuman.keterangan,
         tanggalPengumuman: pengumuman.tanggalPengumuman,
       );
 
-      await _firestore.collection('pengumuman').add(updatedEvent.toMap());
+      await _firestore.collection('pengumuman').add(createdPengumuman.toMap());
     } catch (e) {
-      throw Exception('Failed to create pengumuman: $e');
+      throw Exception('Gagal membuat pengumuman: $e');
     }
   }
 
-  Future<void> updatePengumuman(String id, PengumumanModel pengumuman) async {
-    await _firestore
-        .collection('pengumuman')
-        .doc(id)
-        .update(pengumuman.toMap());
+  Future<void> updatePengumuman(
+      String id, PengumumanModel pengumuman, File? pengumumanFile) async {
+    try {
+      String? newPengumumanUrl;
+
+      if (pengumumanFile != null) {
+        newPengumumanUrl = await uploadFile(pengumumanFile, 'pengumuman');
+        if (pengumuman.filePengumuman.isNotEmpty) {
+          await deleteFile(pengumuman.filePengumuman);
+        }
+      }
+
+      final updatedPengumuman = PengumumanModel(
+        id: pengumuman.id,
+        namaEvent: pengumuman.namaEvent,
+        filePengumuman: newPengumumanUrl ?? pengumuman.filePengumuman,
+        tanggalPengumuman: pengumuman.tanggalPengumuman,
+        keterangan: pengumuman.filePengumuman,
+      );
+
+      await _firestore.collection('event').doc(id).update(updatedPengumuman.toMap());
+    } catch (e) {
+      throw Exception('Gagal update event: $e');
+    }
+  }
+
+  // Delete file from Firebase Storage
+  Future<void> deleteFile(String url) async {
+    try {
+      // Extract the file path from URL
+      final String path = Uri.parse(url).pathSegments.join('/');
+      await _storage.ref(path).delete();
+    } catch (e) {
+      throw Exception('Gagal hapus file: $e');
+    }
   }
 
   Future<void> deletePengumuman(String id) async {

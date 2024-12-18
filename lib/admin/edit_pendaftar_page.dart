@@ -87,7 +87,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
       setState(() {
         namaController.text = data['namaPendaftar'] ?? '';
         emailController.text = data['emailPendaftar'] ?? '';
-        teleponController.text = data['telepon'] ?? '';
+        teleponController.text = (data['telepon'] != null) ? data['telepon'].toString() : '';
         alamatController.text = data['alamat'] ?? '';
         nimController.text = data['nim'] ?? '';
         angkatanController.text = data['angkatan'] ?? '';
@@ -105,35 +105,53 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
 
   Future<void> _updatePendaftar() async {
     try {
+      // Konversi tipe data sesuai kebutuhan
+      final int? telepon = int.tryParse(teleponController.text);
+      final int? angkatan = int.tryParse(angkatanController.text);
+      final Timestamp? tglLahir = 
+          selectedDate != null ? Timestamp.fromDate(selectedDate!) : null;
+
+      // Validasi nilai penting
+      if (telepon == null || angkatan == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Telepon dan Angkatan harus berupa angka!")),
+        );
+        return;
+      }
+
+      // Update data di Firestore
       await FirebaseFirestore.instance
           .collection('pendaftar')
           .doc(widget.pendaftarId)
           .update({
         'namaPendaftar': namaController.text,
         'emailPendaftar': emailController.text,
-        'telepon': teleponController.text,
+        'telepon': telepon,
         'alamat': alamatController.text,
         'nim': nimController.text,
-        'angkatan': angkatanController.text,
+        'angkatan': angkatan,
         'alasan': alasanController.text,
         'jenisKelamin': jenisKelamin,
         'jurusan': jurusanController.text,
         'fakultas': fakultasController.text,
         'pilihanSatu': pilihan1,
         'pilihanDua': pilihan2,
-        'tglLahir': selectedDate?.toIso8601String(),
+        'tglLahir': tglLahir,
       });
 
+      // Notifikasi sukses
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Data berhasil diperbarui!")),
       );
       Navigator.pop(context);
     } catch (e) {
+      // Notifikasi jika terjadi error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
       );
     }
   }
+
 
   Widget _buildTextField(String label,
       {required TextEditingController controller}) {
@@ -253,7 +271,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                   onPressed: () => pickFile(true),
                   icon: const Icon(Icons.upload, color: Colors.white),
                   label: const Text(
-                    "Choose File",
+                    "Pilih File",
                     style: TextStyle(color: Colors.white), // Warna putih
                   ),
                   style: ElevatedButton.styleFrom(
@@ -261,7 +279,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(cvFileName ?? "No File Chosen"),
+                Text(cvFileName ?? "Belum ada file"),
               ],
             ),
             const SizedBox(height: 16),
@@ -276,7 +294,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                   onPressed: () => pickFile(false),
                   icon: const Icon(Icons.upload, color: Colors.white),
                   label: const Text(
-                    "Choose File",
+                    "Pilih File",
                     style: TextStyle(color: Colors.white), // Warna putih
                   ),
                   style: ElevatedButton.styleFrom(
@@ -284,7 +302,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(locFileName ?? "No File Chosen"),
+                Text(locFileName ?? "Belum ada file"),
               ],
             ),
             const SizedBox(height: 16),

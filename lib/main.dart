@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       routes: {
         // Halaman umum
         '/': (context) => const Landing(title: 'Sirek Mobile'),
-        '/login': (context) => const Loginpage(),
+        '/login': (context) => const LoginPage(),
 
         // Halaman admin
         '/dashboard': (context) => Dashboard(),

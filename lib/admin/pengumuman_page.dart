@@ -252,14 +252,12 @@ class _PengumumanPageState extends State<PengumumanPage> {
           }
         }
 
-        await pengumumanDoc.delete();
+        await _pengumumanController.deletePengumuman(pengumumanId);
 
-        // Tampilkan pesan sukses
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Pengumuman berhasil dihapus!")),
         );
 
-        // Kembali ke halaman sebelumnya
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -332,7 +330,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
           Expanded(
             child: _filteredPengumumans.isEmpty
                 ? const Center(
-                    child: Text("Tidak ada pengumuman yang ditemukan."),
+                    child: Text("Tidak menemukan data pengumuman"),
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(

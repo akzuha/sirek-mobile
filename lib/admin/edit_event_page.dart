@@ -14,6 +14,8 @@ class EditEventPage extends StatefulWidget {
 }
 
 class _EditEventPageState extends State<EditEventPage> {
+
+  
   String? bookletFileName;
   DateTime? closeDate;
   late TextEditingController deskripsiController;
@@ -267,7 +269,7 @@ class _EditEventPageState extends State<EditEventPage> {
           child: const Text("Pilih File"),
         ),
         const SizedBox(width: 10),
-        Expanded(child: Text(fileName ?? "No File Chosen")),
+        Expanded(child: Text(fileName ?? "Belum ada file")),
       ],
     );
   }
