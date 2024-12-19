@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
@@ -77,41 +78,53 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
     }
   }
 
-  Future<void> _fetchPendaftarDetails() async {
-    final pendaftarDoc = await FirebaseFirestore.instance
-        .collection('pendaftar')
-        .doc(widget.pendaftarId)
-        .get();
-    if (pendaftarDoc.exists) {
-      final data = pendaftarDoc.data()!;
-      setState(() {
-        namaController.text = data['namaPendaftar'] ?? '';
-        emailController.text = data['emailPendaftar'] ?? '';
-        teleponController.text = (data['telepon'] != null) ? data['telepon'].toString() : '';
-        alamatController.text = data['alamat'] ?? '';
-        nimController.text = data['nim'] ?? '';
-        angkatanController.text = data['angkatan'] ?? '';
-        alasanController.text = data['alasan'] ?? '';
-        jenisKelamin = data['jenisKelamin'] ?? '';
-        jurusanController = data['jurusan'] ?? '';
-        fakultasController = data['fakultas'] ?? '';
-        pilihan1 = data['pilihanSatu'] ?? '';
-        pilihan2 = data['pilihanDua'] ?? '';
-        selectedDate =
-            data['tglLahir'] != null ? DateTime.parse(data['tglLahir']) : null;
-      });
+  Future<String> getBookletName(String url) async {
+    try {
+      final ref = FirebaseStorage.instance.refFromURL(url);
+      return ref.name;
+    } catch (e) {
+      debugPrint("Error getting booklet name: $e");
+      return "Nama file tidak tersedia";
     }
   }
 
+  Future<void> _fetchPendaftarDetails() async {
+  final pendaftarDoc = await FirebaseFirestore.instance
+      .collection('pendaftar')
+      .doc(widget.pendaftarId)
+      .get();
+  if (pendaftarDoc.exists) {
+    final data = pendaftarDoc.data()!;
+    setState(() {
+      namaController.text = data['namaPendaftar'] ?? '';
+      emailController.text = data['emailPendaftar'] ?? '';
+      teleponController.text =
+          data['telepon'] != null ? data['telepon'].toString() : '';
+      alamatController.text = data['alamat'] ?? '';
+      nimController.text = data['nim'] ?? '';
+      angkatanController.text =
+          data['angkatan'] != null ? data['angkatan'].toString() : '';
+      alasanController.text = data['alasan'] ?? '';
+      jenisKelamin = data['jenisKelamin'] ?? '';
+      jurusanController.text = data['jurusan'] ?? '';
+      fakultasController.text = data['fakultas'] ?? '';
+      pilihan1 = data['pilihanSatu'] ?? '';
+      pilihan2 = data['pilihanDua'] ?? '';
+      selectedDate = data['tglLahir'] != null
+          ? (data['tglLahir'] as Timestamp).toDate()
+          : null;
+    });
+  }
+}
+
   Future<void> _updatePendaftar() async {
     try {
-      // Konversi tipe data sesuai kebutuhan
       final int? telepon = int.tryParse(teleponController.text);
       final int? angkatan = int.tryParse(angkatanController.text);
-      final Timestamp? tglLahir = 
-          selectedDate != null ? Timestamp.fromDate(selectedDate!) : null;
+      final Timestamp? tglLahir = selectedDate != null
+          ? Timestamp.fromDate(selectedDate!)
+          : null;
 
-      // Validasi nilai penting
       if (telepon == null || angkatan == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Telepon dan Angkatan harus berupa angka!")),
@@ -119,7 +132,6 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
         return;
       }
 
-      // Update data di Firestore
       await FirebaseFirestore.instance
           .collection('pendaftar')
           .doc(widget.pendaftarId)
@@ -138,8 +150,6 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
         'pilihanDua': pilihan2,
         'tglLahir': tglLahir,
       });
-
-      // Notifikasi sukses
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Data berhasil diperbarui!")),
       );
@@ -254,9 +264,9 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
             const SizedBox(height: 16),
             _buildTextField("Angkatan", controller: angkatanController),
             const SizedBox(height: 16),
-            _buildDropdownField("Pilihan 1", ["Bendahara", "Sekretaris"]),
+            _buildDropdownField("Pilihan 1", ["Acara", "Humas", "ATP", "Konsumsi", "Medis/P3K", "Sponsorship", "Keamanan/Lapangan", "PDD", "Sekretaris", "Bendahara"]),
             const SizedBox(height: 16),
-            _buildDropdownField("Pilihan 2", ["Ketua", "Sekretaris"]),
+            _buildDropdownField("Pilihan 2", ["Acara", "Humas", "ATP", "Konsumsi", "Medis/P3K", "Sponsorship", "Keamanan/Lapangan", "PDD", "Sekretaris", "Bendahara"]),
             const SizedBox(height: 16),
             _buildTextField("Alasan", controller: alasanController),
             const SizedBox(height: 16),
@@ -279,7 +289,7 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(cvFileName ?? "Belum ada file"),
+                Expanded(child: Text(cvFileName ?? "Belum ada file")),
               ],
             ),
             const SizedBox(height: 16),
@@ -295,14 +305,14 @@ class _EditPendaftarPageState extends State<EditPendaftarPage> {
                   icon: const Icon(Icons.upload, color: Colors.white),
                   label: const Text(
                     "Pilih File",
-                    style: TextStyle(color: Colors.white), // Warna putih
+                    style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF072554),
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(locFileName ?? "Belum ada file"),
+                Expanded(child: Text(locFileName ?? "Belum ada file")),
               ],
             ),
             const SizedBox(height: 16),

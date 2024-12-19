@@ -1,8 +1,11 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sirek/ui/daftar_event_page.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:sirek/widgets/mhsbottom_nav.dart';
 
 class EventDetailPage extends StatelessWidget {
@@ -20,12 +23,17 @@ class EventDetailPage extends StatelessWidget {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
+  Future<void> _downloadFile(String url, String fileName) async {
+    try {
+      final Directory appDocDir = await getApplicationDocumentsDirectory();
+      final String savePath = "${appDocDir.path}/$fileName.pdf";
+
+      Dio dio = Dio();
+      await dio.download(url, savePath);
+
+      OpenFile.open(savePath);
+    } catch (e) {
+      throw Exception("Failed to download file: $e");
     }
   }
 
@@ -110,11 +118,15 @@ class EventDetailPage extends StatelessWidget {
                       onPressed: () async {
                         if (bookletUrl.isNotEmpty) {
                           try {
-                            await _launchURL(bookletUrl);
+                            await _downloadFile(bookletUrl, "booklet_event");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Booklet berhasil diunduh")),
+                            );
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text("Gagal membuka booklet: $e")),
+                                  content: Text("Gagal mengunduh booklet: $e")),
                             );
                           }
                         } else {

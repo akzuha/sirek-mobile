@@ -60,7 +60,6 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
     }
   }
 
-  // Fungsi untuk memilih tanggal
   Future<void> pickDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -90,10 +89,8 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
       }
 
       try {
-        // Coba unggah file PDF
         String pengumumanUrl = await _pengumumanController.uploadFile(_filePengumuman!, 'pengumuman');
 
-        // Buat objek pengumuman baru
         final newPengumuman = PengumumanModel(
           id: '',
           namaEvent: _selectedEvent!,
@@ -102,18 +99,14 @@ class _AddPengumumanPageState extends State<AddPengumumanPage> {
           tanggalPengumuman: _tanggalPengumuman!,
         );
 
-        // Tambahkan ke Firestore melalui controller
         await _pengumumanController.createPengumuman(newPengumuman);
 
-        // Tampilkan notifikasi berhasil
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Pengumuman berhasil ditambahkan!')),
         );
 
-        // Kembali ke halaman sebelumnya
         Navigator.pop(context);
       } catch (e) {
-        // Tangani kesalahan proses upload atau Firestore
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Terjadi kesalahan: $e')),
         );

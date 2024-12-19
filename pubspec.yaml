@@ -11,18 +11,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  url_launcher: ^6.1.10
   cupertino_icons: ^1.0.8
-  http: ^1.2.2
   intl: ^0.18.0
   file_picker: ^5.2.2
   path_provider: ^2.1.5
-  auto_size_text: ^3.0.0
   firebase_core: ^3.8.0
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.5.1
   firebase_storage: ^12.3.7
-  permission_handler: ^11.3.1
   open_file: ^3.5.10
   dio: ^5.7.0
 

@@ -6,10 +6,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:sirek/widgets/admin_bottom_nav.dart';
 
 class EditPengumumanPage extends StatefulWidget {
-  const EditPengumumanPage({super.key, required this.pengumumanId, required this.pengumumanName});
+  const EditPengumumanPage({super.key, required this.pengumumanId});
 
   final String pengumumanId;
-  final String pengumumanName;
 
   @override
   State<EditPengumumanPage> createState() => _EditPengumumanPageState();
@@ -21,6 +20,48 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
   DateTime? selectedDate;
 
   final TextEditingController _keteranganController = TextEditingController();
+  String? pengumumanName;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPengumumanData();
+  }
+
+  // Fungsi untuk mengambil data pengumuman dari Firestore
+  Future<void> fetchPengumumanData() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('pengumuman')
+          .doc(widget.pengumumanId)
+          .get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+        setState(() {
+          pengumumanName = data['nama'] ?? "";
+          _keteranganController.text = data['keterangan'] ?? "";
+          fileName = data['fileName'] ?? "";
+          selectedDate = data['tanggal'] != null
+              ? DateTime.parse(data['tanggal'])
+              : null;
+          isLoading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Pengumuman tidak ditemukan.")),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memuat data pengumuman: $e")),
+      );
+      Navigator.pop(context);
+    }
+  }
 
   // Fungsi untuk memilih file
   Future<void> pickFile() async {
@@ -102,7 +143,7 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
           .update({
         'keterangan': _keteranganController.text,
         'tanggal': selectedDate?.toIso8601String(),
-        'filePengumuman': fileUrl,
+        'filePengumuman': fileUrl ?? "",
         'fileName': fileName,
       });
 
@@ -124,6 +165,14 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF072554),
@@ -147,11 +196,11 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
                 style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             TextField(
-              controller: TextEditingController(text: widget.pengumumanName),
+              controller: TextEditingController(text: pengumumanName),
               readOnly: true,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                fillColor: Colors.grey[300], // Warna background untuk readonly
+                fillColor: Colors.grey[300],
                 filled: true,
               ),
             ),

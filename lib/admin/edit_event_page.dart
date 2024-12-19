@@ -33,7 +33,6 @@ class _EditEventPageState extends State<EditEventPage> {
 
   @override
   void dispose() {
-    // Membersihkan controller
     namaController.dispose();
     deskripsiController.dispose();
     super.dispose();
@@ -42,7 +41,7 @@ class _EditEventPageState extends State<EditEventPage> {
   // Fungsi untuk memilih file
   Future<void> pickFile(bool isImage) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: isImage ? FileType.image : FileType.custom,
+      type: FileType.custom,
       allowedExtensions: isImage ? ['png', 'jpg'] : ['pdf'],
     );
 
@@ -91,7 +90,6 @@ class _EditEventPageState extends State<EditEventPage> {
     }
   }
 
-  // Fungsi untuk memilih tanggal
   Future<void> pickDate(BuildContext context, bool isOpenDate) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -142,7 +140,6 @@ class _EditEventPageState extends State<EditEventPage> {
     }
   }
 
-  // Fungsi untuk mengunggah file ke Firebase Storage
   Future<String> _uploadFile(String filePath, String storagePath) async {
     final file = File(filePath);
     final ref = FirebaseStorage.instance.ref().child(storagePath);
@@ -150,7 +147,6 @@ class _EditEventPageState extends State<EditEventPage> {
     return await uploadTask.ref.getDownloadURL();
   }
 
-  // Fungsi untuk memperbarui data event
   Future<void> _updateEventData() async {
     try {
       await FirebaseFirestore.instance
@@ -169,7 +165,7 @@ class _EditEventPageState extends State<EditEventPage> {
         const SnackBar(content: Text("Event berhasil diperbarui!")),
       );
 
-      Navigator.pop(context); // Kembali ke halaman sebelumnya
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Gagal update event: $e")),
@@ -207,9 +203,48 @@ class _EditEventPageState extends State<EditEventPage> {
             const SizedBox(height: 16),
             _buildDateField("Close Recruitment", closeDate, false),
             const SizedBox(height: 16),
-            _buildFilePicker("Upload Gambar", imageFileName, true),
+            const Text("Gambar Logo",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => pickFile(true),
+                  icon: const Icon(Icons.upload, color: Colors.white),
+                  label: const Text(
+                    "Pilih File",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF072554),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(imageFileName ?? "Belum ada file")),
+              ],
+            ),
             const SizedBox(height: 16),
-            _buildFilePicker("Upload File Booklet", bookletFileName, false),
+
+            const Text("Booklet",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => pickFile(false),
+                  icon: const Icon(Icons.upload, color: Colors.white),
+                  label: const Text(
+                    "Pilih File",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF072554),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(bookletFileName ?? "Belum ada file")),
+              ],
+            ),
             const SizedBox(height: 16),
             _buildSubmitButton(),
           ],
@@ -257,19 +292,6 @@ class _EditEventPageState extends State<EditEventPage> {
             border: const OutlineInputBorder(),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildFilePicker(String label, String? fileName, bool isImage) {
-    return Row(
-      children: [
-        ElevatedButton(
-          onPressed: () => pickFile(isImage),
-          child: const Text("Pilih File"),
-        ),
-        const SizedBox(width: 10),
-        Expanded(child: Text(fileName ?? "Belum ada file")),
       ],
     );
   }

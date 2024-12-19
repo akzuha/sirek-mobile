@@ -24,7 +24,6 @@ class _AddEventPageState extends State<AddEventPage> {
   String? _namaEvent;
   DateTime? _openRec;
 
-  // Fungsi untuk memilih file gambar atau booklet
   Future<void> _pickFile(bool isGambar) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -59,7 +58,6 @@ class _AddEventPageState extends State<AddEventPage> {
     }
   }
 
-  // Fungsi untuk memilih tanggal
   Future<void> _pickDate(BuildContext context, bool isOpenRec) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -94,11 +92,9 @@ class _AddEventPageState extends State<AddEventPage> {
       }
 
       try {
-        // Upload file gambar dan booklet
         String gambarUrl = await _eventController.uploadFile(_gambar!, 'event/logo');
         String bookletUrl = await _eventController.uploadFile(_booklet!, 'event/booklet');
 
-        // Buat objek event baru
         final newEvent = EventModel(
           id: '',
           namaEvent: _namaEvent!,
@@ -109,15 +105,12 @@ class _AddEventPageState extends State<AddEventPage> {
           deskripsi: _deskripsi!,
         );
 
-        // Tambahkan ke Firestore
         await _eventController.createEventWithFiles(newEvent);
 
-        // Tampilkan notifikasi berhasil
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event berhasil ditambahkan!')),
         );
 
-        // Kembali ke halaman sebelumnya
         Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -154,7 +147,6 @@ class _AddEventPageState extends State<AddEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Input Nama Event
               const Text("Nama Event",
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -170,7 +162,6 @@ class _AddEventPageState extends State<AddEventPage> {
               ),
               const SizedBox(height: 16),
 
-              // Upload Gambar
               const Text("Gambar",
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),

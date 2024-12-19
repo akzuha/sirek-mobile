@@ -61,7 +61,7 @@ class EventRepository {
   // Upload file to Firebase Storage
   Future<String> uploadFile(File file, String folder) async {
     try {
-      String fileName = "${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}";
+      String fileName = file.path.split('/').last;
       Reference ref = _storage.ref().child('$folder/$fileName');
       UploadTask uploadTask = ref.putFile(file);
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {

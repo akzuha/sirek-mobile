@@ -1,12 +1,25 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import '../widgets/mhsbottom_nav.dart';
-import '../controllers/pengumuman_controller.dart';
-import '../models/pengumuman_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:open_file/open_file.dart';
+import 'package:sirek/widgets/mhsbottom_nav.dart';
+
+class PengumumanModel {
+  final String id; 
+  final String namaEvent;
+  final String keterangan;
+  final String filePengumuman;
+
+  PengumumanModel({
+    required this.id,
+    required this.namaEvent,
+    required this.keterangan,
+    required this.filePengumuman,
+  });
+}
 
 class PengumumanPage extends StatefulWidget {
   const PengumumanPage({super.key});
@@ -16,11 +29,18 @@ class PengumumanPage extends StatefulWidget {
 }
 
 class _PengumumanPageState extends State<PengumumanPage> {
-  final PengumumanController _pengumumanController = PengumumanController();
-
   Future<List<PengumumanModel>> _loadPengumuman() async {
     try {
-      return await _pengumumanController.getAllPengumuman();
+      final response = await FirebaseFirestore.instance.collection('pengumuman').get();
+      return response.docs.map((doc) {
+        final data = doc.data();
+        return PengumumanModel(
+          id: doc.id,
+          namaEvent: data['namaEvent'],
+          keterangan: data['keterangan'],
+          filePengumuman: data['filePengumuman'],
+        );
+      }).toList();
     } catch (e) {
       throw Exception("Gagal memuat data pengumuman: $e");
     }
@@ -68,18 +88,8 @@ class _PengumumanPageState extends State<PengumumanPage> {
             height: 100,
             width: 100,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                height: 100,
-                width: 100,
-                color: Colors.grey[300],
-                child: const Icon(Icons.image, color: Colors.grey),
-              );
-            },
           ),
           const SizedBox(width: 16),
-
-          // Detail Pengumuman dan Tombol Unduh
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,14 +105,9 @@ class _PengumumanPageState extends State<PengumumanPage> {
                 const SizedBox(height: 8),
                 Text(
                   description,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black87,
-                  ),
+                  style: const TextStyle(fontSize: 10, color: Colors.black87),
                 ),
                 const SizedBox(height: 8),
-
-                // Tombol Unduh Pengumuman
                 ElevatedButton(
                   onPressed: () {
                     _showDownloadDialog(context, pdfUrl, title);
@@ -110,17 +115,10 @@ class _PengumumanPageState extends State<PengumumanPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6A220),
                     minimumSize: const Size(100, 30),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                   ),
                   child: const Text(
                     "Unduh Pengumuman",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
               ],
@@ -134,98 +132,44 @@ class _PengumumanPageState extends State<PengumumanPage> {
   void _showDownloadDialog(BuildContext context, String pdfUrl, String fileName) {
     showDialog(
       context: context,
-      barrierDismissible: true,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Unduh Pengumuman",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold, color: Color(0xFF072554),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                color: Colors.black54,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.picture_as_pdf,
-                size: 50,
-                color: Color(0xFF072554),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                fileName,
-                style: const TextStyle(fontSize: 14, color: Colors.black87),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF072554),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _checkAndDownload(pdfUrl, fileName);
-                },
-                child: const Text(
-                  "Unduh Pengumuman",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
+          title: const Text("Unduh Pengumuman"),
+          content: const Icon(Icons.picture_as_pdf, size: 50),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _downloadFile(pdfUrl, fileName);
+              },
+              child: const Text("Unduh"),
+            ),
+          ],
         );
       },
     );
   }
 
-  Future<void> _checkAndDownload(String url, String fileName) async {
-    var status = await Permission.storage.status;
-    if (status.isGranted) {
-      _downloadFile(url, fileName);
-    } else if (status.isDenied) {
-      if (await Permission.storage.request().isGranted) {
-        _downloadFile(url, fileName);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Izin penyimpanan ditolak")),
-        );
-      }
-    }
-  }
-
   Future<void> _downloadFile(String url, String fileName) async {
     try {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String savePath = "${appDocDir.path}/$fileName";
+      final storageRef = FirebaseStorage.instance.refFromURL(url);
+      final String downloadUrl = await storageRef.getDownloadURL();
+
+      final Directory appDocDir = await getApplicationDocumentsDirectory();
+      final String savePath = "${appDocDir.path}/$fileName.pdf";
 
       Dio dio = Dio();
-      await dio.download(url, savePath);
+      await dio.download(downloadUrl, savePath);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("File berhasil diunduh: $savePath")),
+        SnackBar(content: Text("File berhasil diunduh di: $savePath")),
       );
+
+      OpenFile.open(savePath);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Gagal mengunduh file: $e")),
@@ -254,36 +198,31 @@ class _PengumumanPageState extends State<PengumumanPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Column(
-              children: [
-                _headerContainer(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text("Tidak Ada data Pengumuman"),
-                ),
-              ],
-            );
+            return const Center(child: Text("Tidak ada pengumuman"));
           } else {
             final pengumumans = snapshot.data!;
             return Column(
+              
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _headerContainer(),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    itemCount: pengumumans.length,
-                    itemBuilder: (context, index) {
-                      final pengumuman = pengumumans[index];
-
-                      return _pengumumanCard(
-                        context,
-                        title: pengumuman.namaEvent,
-                        description: pengumuman.keterangan,
-                        pdfUrl: pengumuman.filePengumuman,
-                      );
-                    },
-                  ),
-                ),
+                const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true,
+                  physics:
+                      const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: pengumumans.length,
+                itemBuilder: (context, index) {
+                  final pengumuman = pengumumans[index];
+                  return _pengumumanCard(
+                    context,
+                    title: pengumuman.namaEvent,
+                    description: pengumuman.keterangan,
+                    pdfUrl: pengumuman.filePengumuman,
+                  );
+                },
+              ),
               ],
             );
           }

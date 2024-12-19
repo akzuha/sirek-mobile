@@ -10,12 +10,10 @@ class PengumumanController {
     return await _repository.fetchAllPengumuman();
   }
 
-  // Upload File
   Future<String> uploadFile(File file, String folder) async {
     return await _repository.uploadFile(file, folder);
   }
 
-  // Fetch all events
   Future<List<EventModel>> getEventList() async {
     return await _eventRepository.fetchAllEvents();
   }

@@ -184,7 +184,6 @@ class _PengumumanPageState extends State<PengumumanPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => EditPengumumanPage(
-                      pengumumanName: pengumumanName,
                       pengumumanId: pengumumanId,
                     ),
                   ),

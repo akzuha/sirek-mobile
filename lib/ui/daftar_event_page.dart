@@ -79,12 +79,11 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
 
       await _controller.createPendaftar(pendaftar);
 
-      // Notifikasi berhasil
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text("Pendaftaran Berhasil"),
-          content: const Text("Data pendaftaran berhasil disimpan."),
+          content: const Text("Selamat kamu berhasil mendaftar! Silahkan menunggu hingga hasil pengumuman dirilis."),
           actions: [
             ElevatedButton(
               onPressed: () {
@@ -101,7 +100,7 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
   Future<String?> _uploadFile(String filePath, String fileName) async {
     try {
       final storageRef =
-          FirebaseStorage.instance.ref().child('uploads/$fileName');
+          FirebaseStorage.instance.ref().child('pendaftar/$fileName');
       final uploadTask = storageRef.putFile(File(filePath));
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
@@ -115,15 +114,17 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
   Future<void> _pickAndUploadFile(String fileType) async {
     final result = await FilePicker.platform.pickFiles();
     if (result != null && result.files.isNotEmpty) {
-      final filePath = result.files.single.path!;
+      var filePath = result.files.single.path!;
       final fileName = result.files.single.name;
 
       final url = await _uploadFile(filePath, fileName);
       if (url != null) {
         setState(() {
           if (fileType == "CV") {
+            filePath = 'file CV';
             fileCV = url;
           } else if (fileType == "LOC") {
+            filePath = 'file LOC';
             fileLOC = url;
           }
         });
@@ -141,10 +142,22 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Form Pendaftaran"),
+    return Scaffold(appBar: AppBar(
+        elevation: 0,
         backgroundColor: const Color(0xFF072554),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          "Form Pendaftaran Event",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -153,73 +166,68 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                color: const Color(0xFF072554),
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  "Daftar event: $eventName",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
-              ),
-              const SizedBox(height: 20),
               Text(
-                "Event: $eventName",
+                "Daftar Event $eventName",
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
-              // Nama
+              const Text("Nama",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Nama"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty
                     ? "Nama tidak boleh kosong"
                     : null,
                 onSaved: (value) => nama = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Email
+              const Text("Email",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Email"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) => value == null || !value.contains("@")
                     ? "Email tidak valid"
                     : null,
                 onSaved: (value) => email = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Telepon
+              const Text("Telepon",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Telepon"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
                 validator: (value) => value == null || value.isEmpty
                     ? "Telepon tidak boleh kosong"
                     : null,
                 onSaved: (value) => telepon = int.parse(value!),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Alamat
+              const Text("Alamat",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Alamat"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty
                     ? "Alamat tidak boleh kosong"
                     : null,
                 onSaved: (value) => alamat = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Tanggal Lahir
+              const Text("Tanggal Lahir",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Tanggal Lahir"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 readOnly: true,
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
@@ -240,11 +248,15 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                       : "",
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Dropdown Jenis Kelamin
+              const Text("Jenis Kelamin",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Jenis Kelamin"),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
                   DropdownMenuItem(
                       value: "Laki-Laki", child: Text("Laki-Laki")),
@@ -253,41 +265,49 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                 ],
                 onChanged: (value) => jenisKelamin = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // NIM
+              const Text("NIM",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "NIM"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty
                     ? "NIM tidak boleh kosong"
                     : null,
                 onSaved: (value) => nim = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Jurusan
+              const Text("Jurusan",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Jurusan"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty
                     ? "Jurusan tidak boleh kosong"
                     : null,
                 onSaved: (value) => jurusan = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Fakultas
+              const Text("Fakultas",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Fakultas"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty
                     ? "Fakultas tidak boleh kosong"
                     : null,
                 onSaved: (value) => fakultas = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Angkatan
+              const Text("Angkatan",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration: const InputDecoration(labelText: "Angkatan"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 validator: (value) =>
                     value == null || int.tryParse(value) == null
@@ -295,11 +315,15 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                         : null,
                 onSaved: (value) => angkatan = int.parse(value!),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Dropdown Pilihan 1
+              const Text("Pilihan 1",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Pilihan 1"),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
                   DropdownMenuItem(value: "Acara", child: Text("Acara")),
                   DropdownMenuItem(value: "Humas", child: Text("Humas")),
@@ -323,11 +347,15 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                     : null,
                 onChanged: (value) => pilihanSatu = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Dropdown Pilihan 2
+              const Text("Pilihan 2",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Pilihan 2"),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
                   DropdownMenuItem(value: "Acara", child: Text("Acara")),
                   DropdownMenuItem(value: "Humas", child: Text("Humas")),
@@ -351,60 +379,79 @@ class _DaftarEventPageState extends State<DaftarEventPage> {
                     : null,
                 onChanged: (value) => pilihanDua = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Alasan
+              const Text("Alasan",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               TextFormField(
-                decoration:
-                    const InputDecoration(labelText: "Alasan Mendaftar"),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
                 validator: (value) => value == null || value.isEmpty
                     ? "Alasan tidak boleh kosong"
                     : null,
                 onSaved: (value) => alasan = value!,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // File CV Upload
+              const Text("File LOC",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () => _pickAndUploadFile("CV"),
-                    child: const Text("Upload File CV"),
+                    icon: const Icon(Icons.upload, color: Colors.white),
+                    label: const Text("Pilih File",
+                        style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
-                  Text(fileCV.isEmpty ? "Belum ada file" : "File CV diunggah"),
+                  Expanded(child: Text(fileCV.isEmpty ? "Belum ada file" : "File CV diunggah")),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // File LOC Upload
+              const Text("File LOC",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () => _pickAndUploadFile("LOC"),
-                    child: const Text("Upload File LOC"),
+                    icon: const Icon(Icons.upload, color: Colors.white),
+                    label: const Text("Pilih File",
+                        style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF072554)),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                      fileLOC.isEmpty ? "Belum ada file" : "File LOC diunggah"),
+                  Expanded(
+                    child: Text(
+                        fileLOC.isEmpty ? "Belum ada file" : "File LOC diunggah"),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // (Submit button and other fields below...)
+              
+              const SizedBox(height: 16),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF6A220),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 90, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text("Tambah Event",
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _submitForm,
-        label: const Text("Daftar",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        icon: const Icon(Icons.save, color: Colors.white),
-        backgroundColor: const Color(0xFF072554),
       ),
     );
   }
